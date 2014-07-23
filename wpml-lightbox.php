@@ -20,7 +20,6 @@
  * Text Domain: wpml
  * License:     GPL-3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.txt
- * Domain Path: /languages
  * GitHub Plugin URI: https://github.com/Askelon/wpmovielibrary-lightbox
  */
 
@@ -68,17 +67,6 @@ function wpmllb_requirements_error() {
 	require_once WPMLLB_PATH . '/views/requirements-error.php';
 }
 
-/**
- * Prints an error that the system requirements weren't met.
- * 
- * @since    1.0
- */
-function wpmllb_l10n() {
-	$locale = apply_filters( 'plugin_locale', get_locale(), WPMLLB_SLUG );
-	load_textdomain( WPMLLB_SLUG, trailingslashit( WP_LANG_DIR ) . basename( __DIR__ ) . '/languages/' . WPMLLB_SLUG . '-' . $locale . '.mo' );
-	load_plugin_textdomain( WPMLLB_SLUG, FALSE, basename( __DIR__ ) . '/languages/' );
-}
-
 /*
  * Check requirements and load main class
  * The main program needs to be in a separate file that only gets loaded if the
@@ -86,7 +74,14 @@ function wpmllb_l10n() {
  * when trying to parse it.
  */
 if ( wpmllb_requirements_met() ) {
-	
+
+	require_once( WPMLLB_PATH . 'class-wpml-lightbox.php' );
+
+	if ( class_exists( 'WPMovieLibrary_LightBox' ) ) {
+		$GLOBALS['wpmllb'] = new WPMovieLibrary_LightBox();
+		register_activation_hook(   __FILE__, array( $GLOBALS['wpmllb'], 'activate' ) );
+		register_deactivation_hook( __FILE__, array( $GLOBALS['wpmllb'], 'deactivate' ) );
+	}
 }
 else {
 	

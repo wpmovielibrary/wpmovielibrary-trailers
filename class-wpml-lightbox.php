@@ -9,7 +9,7 @@
  * @copyright 2014 Charlie MERLAND
  */
 
-if ( ! class_exists( 'WPMovieLibrary-LightBox' ) ) :
+if ( ! class_exists( 'WPMovieLibrary_LightBox' ) ) :
 
 	/**
 	* Plugin class
@@ -19,21 +19,13 @@ if ( ! class_exists( 'WPMovieLibrary-LightBox' ) ) :
 	*/
 	class WPMovieLibrary_LightBox {
 
-		protected static $readable_properties  = array();
-
-		protected static $writeable_properties = array();
-
-		protected $modules;
-
-		protected $widgets;
-
 		/**
 		 * Initialize the plugin by setting localization and loading public scripts
 		 * and styles.
 		 *
 		 * @since     1.0
 		 */
-		protected function __construct() {
+		public function __construct() {
 
 			$this->register_hook_callbacks();
 		}
@@ -45,12 +37,11 @@ if ( ! class_exists( 'WPMovieLibrary-LightBox' ) ) :
 		 */
 		public function register_hook_callbacks() {
 
-			// Load plugin text domain
-			add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
-
 			// Enqueue scripts and styles
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+			//add_filters( '', array( $this, 'add_pposter_lightbox' ) );
 		}
 
 		/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -144,7 +135,7 @@ if ( ! class_exists( 'WPMovieLibrary-LightBox' ) ) :
 		 */
 		public function enqueue_styles() {
 
-			wp_enqueue_style( WPMLLB_SLUG, WPMLLB_URL . '/assets/css/public.css', array(), WPMLLB_VERSION );
+			wp_enqueue_style( WPMLLB_SLUG . '-lightbox', WPMLLB_URL . '/vendor/css/lightbox.min.css', array(), WPMLLB_VERSION );
 		}
 
 		/**
@@ -154,22 +145,8 @@ if ( ! class_exists( 'WPMovieLibrary-LightBox' ) ) :
 		 */
 		public function enqueue_scripts() {
 
-			wp_enqueue_script( WPMLLB_SLUG, WPMLLB_URL . '/assets/js/public.js', array( 'jquery' ), WPMLLB_VERSION, true );
-		}
-
-		/**
-		 * Load the plugin text domain for translation.
-		 *
-		 * @since    1.0
-		 */
-		public function load_plugin_textdomain() {
-
-			$domain = WPMLLB_SLUG;
-			$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
-
-			load_textdomain( $domain, trailingslashit( WP_LANG_DIR ) . $domain . '/' . $domain . '-' . $locale . '.mo' );
-			load_plugin_textdomain( $domain, FALSE, basename( plugin_dir_path( dirname( __FILE__ ) ) ) . '/languages/' );
-
+			wp_enqueue_script( WPMLLB_SLUG . '-lightbox', WPMLLB_URL . '/vendor/js/lightbox.min.js', array(), WPMLLB_VERSION, true );
+			//wp_enqueue_script( WPMLLB_SLUG . '-js', WPMLLB_URL . '/assets/js/wpml-lightbox.js', array( WPMLLB_SLUG . '-lightbox' ), WPMLLB_VERSION, true );
 		}
 
 		/**

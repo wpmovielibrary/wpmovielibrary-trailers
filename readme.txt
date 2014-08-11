@@ -1,18 +1,18 @@
-=== WPMovieLibrary LightBox ===
+=== WPMovieLibrary Trailers ===
 Contributors: askelon
 Donate link: http://wpmovielibrary.com
-Tags: wpmovielibrary, effect, lightbox, lightbox2
+Tags: wpmovielibrary, movie trailer, trailers
 Requires at least: 3.6
-Tested up to: 3.9.1
+Tested up to: 4.0-beta.2
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+Add Trailers support to WPMovieLibrary
 
 == Description ==
 
-Add a LightBox2 effect to WPMovieLibrary's Images and Posters
+Add Trailers support to WPMovieLibrary
 
 == Installation ==
 

@@ -17,7 +17,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 	* @package WPMovieLibrary-Trailers
 	* @author  Charlie MERLAND <charlie@caercam.org>
 	*/
-	class WPMovieLibrary_Trailers {
+	class WPMovieLibrary_Trailers extends WPMLTR_Module {
 
 		/**
 		 * Initialize the plugin by setting localization and loading public scripts
@@ -37,9 +37,15 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 */
 		public function register_hook_callbacks() {
 
+			add_action( 'activated_plugin', __CLASS__ . '::require_wpml_first' );
+
 			// Enqueue scripts and styles
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+
+			add_filter( 'wpml_filter_metaboxes', array( $this, 'add_meta_box' ), 10 );
+
+			add_action( 'wp_ajax_wpml_search_trailer', __CLASS__ . '::search_trailer_callback' );
 		}
 
 		/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -115,6 +121,29 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 * @param    bool    $network_wide
 		 */
 		protected function single_activate( $network_wide ) {
+
+			self::require_wpml_first();
+		}
+
+		public static function require_wpml_first() {
+
+			$this_plugin_path = plugin_dir_path( __FILE__ );
+			$this_plugin      = basename( $this_plugin_path ) . '/wpml-trailers.php';
+			$active_plugins   = get_option( 'active_plugins' );
+			$this_plugin_key  = array_search( $this_plugin, $active_plugins );
+			$wpml_plugin_key  = array_search( 'wpmovielibrary/wpmovielibrary.php', $active_plugins );
+
+			if ( $this_plugin_key < $wpml_plugin_key ) {
+
+				unset( $active_plugins[ $this_plugin_key ] );
+				$active_plugins = array_merge(
+					array_slice( $active_plugins, 0, $wpml_plugin_key ),
+					array( $this_plugin ),
+					array_slice( $active_plugins, $wpml_plugin_key )
+				);
+
+				update_option( 'active_plugins', $active_plugins );
+			}
 		}
 
 		/**
@@ -122,9 +151,9 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 *
 		 * @since    1.0
 		 */
-		public function enqueue_styles() {
+		public function admin_enqueue_styles() {
 
-			//wp_enqueue_style( WPMLLB_SLUG . '-lightbox', WPMLLB_URL . '/vendor/css/lightbox.min.css', array(), WPMLLB_VERSION );
+			wp_enqueue_style( WPMLTR_SLUG . '-css', WPMLTR_URL . '/assets/css/admin.css', array(), WPMLTR_VERSION );
 		}
 
 		/**
@@ -132,10 +161,71 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 *
 		 * @since    1.0
 		 */
-		public function enqueue_scripts() {
+		public function admin_enqueue_scripts() {
 
-			//wp_enqueue_script( WPMLLB_SLUG . '-lightbox', WPMLLB_URL . '/vendor/js/lightbox.min.js', array(), WPMLLB_VERSION, true );
-			//wp_enqueue_script( WPMLLB_SLUG . '-js', WPMLLB_URL . '/assets/js/wpml-lightbox.js', array( WPMLLB_SLUG . '-lightbox' ), WPMLLB_VERSION, true );
+			//wp_enqueue_script( WPMLTR_SLUG . '-lightbox', WPMLTR_URL . '/vendor/js/lightbox.min.js', array(), WPMLTR_VERSION, true );
+			wp_enqueue_script( WPMLTR_SLUG . '-js', WPMLTR_URL . '/assets/js/wpmltr-trailers.js', array( WPML_SLUG ), WPMLTR_VERSION, true );
+		}
+
+		/**
+		 * Register Trailers Metabox
+		 *
+		 * @since    1.0
+		 */
+		public function add_meta_box( $metaboxes ) {
+
+			$metaboxes = array_merge(
+				$metaboxes,
+				array(
+					array(
+						'id'            => 'wpml_trailers',
+						'title'         => __( 'WPMovieLibrary − Trailers', 'wpml-trailers' ),
+						'callback'      => 'WPMovieLibrary_Trailers::metabox_content',
+						'screen'        => 'movie',
+						'context'       => 'normal',
+						'priority'      => 'high',
+						'callback_args' => null
+					)
+				)
+			);
+
+			return $metaboxes;
+		}
+
+		/**
+		 * Trailers Metabox
+		 * 
+		 * @since    1.0
+		 * 
+		 * @param    object    Current Post object
+		 * @param    null      $metabox null
+		 */
+		public static function metabox_content( $post, $metabox ) {
+
+			echo self::render_template( 'metaboxes/movie-trailers.php' );
+		}
+
+		
+
+		/**
+		 * Trailers search callback
+		 * 
+		 * @since    1.0
+		 */
+		public static function search_trailer_callback() {
+
+			WPML_Utils::check_ajax_referer( 'search-trailer' );
+
+			$tmdb_id = ( isset( $_GET['tmdb_id'] ) && '' != $_GET['tmdb_id'] ? intval( $_GET['tmdb_id'] ) : null );
+			$source  = ( isset( $_GET['source'] ) && in_array( $_GET['tmdb_id'], array( 'youtube', 'allocine' ) ) ? esc_attr( $_GET['tmdb_id'] ) : 'youtube' );
+
+			if ( is_null( $tmdb_id ) )
+				return new WP_Error( 'id_error', __( 'Required TMDb ID not provided or invalid.', 'wpmovielibrary' ) );
+
+			$response = array( 'test' );
+
+			WPML_Utils::ajax_response( $response, array(), WPML_Utils::create_nonce( 'search-trailer' ) );
+			//$trailers = WPMLTR_TMDb::get_trailers( 80274, '' );
 		}
 
 		/**

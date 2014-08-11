@@ -28,13 +28,13 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'WPMLLB_NAME',                   'WPMovieLibrary-Trailers' );
-define( 'WPMLLB_VERSION',                '1.0' );
-define( 'WPMLLB_SLUG',                   'wpml-trailers' );
-define( 'WPMLLB_URL',                    plugins_url( basename( __DIR__ ) ) );
-define( 'WPMLLB_PATH',                   plugin_dir_path( __FILE__ ) );
-define( 'WPMLLB_REQUIRED_PHP_VERSION',   '5.3' );
-define( 'WPMLLB_REQUIRED_WP_VERSION',    '3.6' );
+define( 'WPMLTR_NAME',                   'WPMovieLibrary-Trailers' );
+define( 'WPMLTR_VERSION',                '1.0' );
+define( 'WPMLTR_SLUG',                   'wpml-trailers' );
+define( 'WPMLTR_URL',                    plugins_url( basename( __DIR__ ) ) );
+define( 'WPMLTR_PATH',                   plugin_dir_path( __FILE__ ) );
+define( 'WPMLTR_REQUIRED_PHP_VERSION',   '5.3' );
+define( 'WPMLTR_REQUIRED_WP_VERSION',    '3.6' );
 
 /**
  * Checks if the system requirements are met
@@ -47,10 +47,10 @@ function wpmllb_requirements_met() {
 
 	global $wp_version;
 
-	if ( version_compare( PHP_VERSION, WPMLLB_REQUIRED_PHP_VERSION, '<' ) )
+	if ( version_compare( PHP_VERSION, WPMLTR_REQUIRED_PHP_VERSION, '<' ) )
 		return false;
 
-	if ( version_compare( $wp_version, WPMLLB_REQUIRED_WP_VERSION, '<' ) )
+	if ( version_compare( $wp_version, WPMLTR_REQUIRED_WP_VERSION, '<' ) )
 		return false;
 
 	return true;
@@ -64,7 +64,7 @@ function wpmllb_requirements_met() {
 function wpmllb_requirements_error() {
 	global $wp_version;
 
-	require_once WPMLLB_PATH . '/views/requirements-error.php';
+	require_once WPMLTR_PATH . '/views/requirements-error.php';
 }
 
 /*
@@ -75,12 +75,20 @@ function wpmllb_requirements_error() {
  */
 if ( wpmllb_requirements_met() ) {
 
-	require_once( WPMLLB_PATH . 'class-wpml-trailers.php' );
+	require_once( WPMLTR_PATH . 'includes/class-module.php' );
+	require_once( WPMLTR_PATH . 'class-wpml-trailers.php' );
 
 	if ( class_exists( 'WPMovieLibrary_Trailers' ) ) {
-		$GLOBALS['wpmllb'] = new WPMovieLibrary_Trailers();
-		register_activation_hook(   __FILE__, array( $GLOBALS['wpmllb'], 'activate' ) );
-		register_deactivation_hook( __FILE__, array( $GLOBALS['wpmllb'], 'deactivate' ) );
+		$GLOBALS['wpmltr'] = new WPMovieLibrary_Trailers();
+		register_activation_hook(   __FILE__, array( $GLOBALS['wpmltr'], 'activate' ) );
+		register_deactivation_hook( __FILE__, array( $GLOBALS['wpmltr'], 'deactivate' ) );
+	}
+
+	WPMovieLibrary_Trailers::require_wpml_first();
+
+	if ( is_admin() ) {
+		require_once( WPMLTR_PATH . 'admin/class-wpmltr-api.php' );
+		require_once( WPMLTR_PATH . 'admin/class-wpmltr-api-wrapper.php' );
 	}
 }
 else {

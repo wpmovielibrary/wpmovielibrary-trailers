@@ -46,6 +46,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			add_filter( 'wpml_filter_metaboxes', array( $this, 'add_meta_box' ), 10 );
 
 			add_action( 'wp_ajax_wpml_search_trailer', __CLASS__ . '::search_trailer_callback' );
+			add_action( 'wp_ajax_wpml_load_allocine_page', __CLASS__ . '::load_allocine_page_callback' );
 		}
 
 		/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -205,8 +206,6 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			echo self::render_template( 'metaboxes/movie-trailers.php' );
 		}
 
-		
-
 		/**
 		 * Trailers search callback
 		 * 
@@ -217,15 +216,34 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			WPML_Utils::check_ajax_referer( 'search-trailer' );
 
 			$tmdb_id = ( isset( $_GET['tmdb_id'] ) && '' != $_GET['tmdb_id'] ? intval( $_GET['tmdb_id'] ) : null );
-			$source  = ( isset( $_GET['source'] ) && in_array( $_GET['tmdb_id'], array( 'youtube', 'allocine' ) ) ? esc_attr( $_GET['tmdb_id'] ) : 'youtube' );
+			$post_id = ( isset( $_GET['post_id'] ) && '' != $_GET['post_id'] ? intval( $_GET['post_id'] ) : null );
 
 			if ( is_null( $tmdb_id ) )
-				return new WP_Error( 'id_error', __( 'Required TMDb ID not provided or invalid.', 'wpmovielibrary' ) );
+				return new WP_Error( 'missing_id', __( 'Required TMDb ID not provided or invalid.', 'wpmovielibrary' ) );
 
-			$response = array( 'test' );
+			$response = self::get_trailers( $tmdb_id );
 
 			WPML_Utils::ajax_response( $response, array(), WPML_Utils::create_nonce( 'search-trailer' ) );
-			//$trailers = WPMLTR_TMDb::get_trailers( 80274, '' );
+		}
+
+		public static function load_allocine_page_callback() {
+
+			WPML_Utils::check_ajax_referer( 'search-trailer' );
+
+			$movie_id = ( isset( $_GET['movie_id'] ) && '' != $_GET['movie_id'] ? intval( $_GET['movie_id'] ) : null );
+
+			if ( is_null( $movie_id ) )
+				return new WP_Error( 'missing_id', __( 'Required Allociné Movie ID not provided or invalid.', 'wpmovielibrary' ) );
+
+			$response = WPMLTR_Allocine::get_trailers( $movie_id );
+
+			WPML_Utils::ajax_response( $response, array(), WPML_Utils::create_nonce( 'search-trailer' ) );
+		}
+
+		public static function get_trailers( $tmdb_id ) {
+
+			$trailers = WPMLTR_TMDb::get_trailers( $tmdb_id );
+			return $trailers;
 		}
 
 		/**

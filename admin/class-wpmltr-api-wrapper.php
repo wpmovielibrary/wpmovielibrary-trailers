@@ -44,7 +44,7 @@ if ( class_exists( 'WPML_TMDb' ) && ! class_exists( 'WPMLTR_TMDb' ) ) :
 		 * 
 		 * @return   array     TMDb result
 		 */
-		public static function get_trailers( $id, $lang ) {
+		public static function get_trailers( $id, $lang = null ) {
 
 			$api = new WPMLTR_Api();
 			return $api->getTrailers( $id, $params );

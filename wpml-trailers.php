@@ -89,6 +89,7 @@ if ( wpmllb_requirements_met() ) {
 	if ( is_admin() ) {
 		require_once( WPMLTR_PATH . 'admin/class-wpmltr-api.php' );
 		require_once( WPMLTR_PATH . 'admin/class-wpmltr-api-wrapper.php' );
+		require_once( WPMLTR_PATH . 'admin/class-wpmltr-allocine.php' );
 	}
 }
 else {

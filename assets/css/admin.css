@@ -1,4 +1,55 @@
 
 #wpml-trailers .spinner {
+	display: none;
 	float: none;
+}
+
+#wpml-trailers .spinner.visible {
+	display: inline-block;
+}
+
+#wpml-trailers .wpml-select-movie,
+#wpml-trailers .wpml-select-trailer {
+	display: inline-table;
+	margin: 1em 0.5em;
+	max-width: 160px;
+	text-align: center;
+	vertical-align: top;
+}
+
+#wpml-trailers .wpml-select-movie img,
+#wpml-trailers .wpml-select-trailer img,
+#wpml-trailer-frame iframe {
+	border-radius: 0.25em;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+	display: block;
+	margin-bottom: 0.5em;
+}
+
+#wpml-trailers .wpml-select-trailer {
+	max-width: 240px;
+}
+
+#wpml-trailer-frame {
+	display: none;
+	float: left;
+	margin: 1em 0.5em 0.5em 0.5em;
+/* 	text-align: center; */
+	max-width: 746px;
+	width: 100%;
+}
+
+#wpml-trailer-frame iframe {
+	height: auto;
+	max-width: 746px;
+	min-height: 360px;
+	width: 100%;
+}
+
+#wpml-trailer-frame #wpml-trailer-details {
+	display: none;
+}
+
+#wpml-trailer-frame input {
+	width: 100%;
 }

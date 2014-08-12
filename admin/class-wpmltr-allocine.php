@@ -50,7 +50,7 @@ if ( ! class_exists( 'WPMLTR_Allocine' ) ) :
 
 			$trailers = array();
 
-			$default = 'http://fr.web.img4.acsta.net/c_195_110/commons/emptymedia/entities/empty_videoportal.jpg';
+			$default = 'http://fr.web.img4.acsta.net/c_240_160/commons/emptymedia/entities/empty_videoportal.jpg';
 			$url = "http://www.allocine.fr/film/fichefilm_gen_cfilm={$movie_id}.html";
 			$page = wp_remote_get( $url );
 
@@ -73,8 +73,11 @@ if ( ! class_exists( 'WPMLTR_Allocine' ) ) :
 				);
 
 				preg_match( '#<img src=("|\')http://(.*?)/c_195_110/videothumbnails/(.*?)' . $matches[ 2 ][ $i ] . '(.*?).jpg("|\') />#i', $page['body'], $match );
-				if ( ! empty( $match ) )
-					$trailers[ $media_id ][''] = str_replace( array( '<img src=\'', '<img src="', '\' >', '" />' ), '', $match[ 0 ] );
+				if ( ! empty( $match ) ) {
+					$thumbnail = str_replace( array( '<img src=\'', '<img src="', '\' />', '" />' ), '', $match[ 0 ] );
+					$thumbnail = str_replace( '195_110', '240_160', $thumbnail );
+					$trailers[ $media_id ]['thumbnail'] = $thumbnail;
+				}
 			}
 
 			return $trailers;

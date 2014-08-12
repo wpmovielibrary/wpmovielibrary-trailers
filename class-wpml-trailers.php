@@ -45,6 +45,8 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 			add_filter( 'wpml_filter_metaboxes', array( $this, 'add_meta_box' ), 10 );
 
+			add_action( 'save_post', array( $this, 'save_trailers' ), 10, 3 );
+
 			add_action( 'wp_ajax_wpml_search_trailer', __CLASS__ . '::search_trailer_callback' );
 			add_action( 'wp_ajax_wpml_load_allocine_page', __CLASS__ . '::load_allocine_page_callback' );
 		}
@@ -219,7 +221,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			$post_id = ( isset( $_GET['post_id'] ) && '' != $_GET['post_id'] ? intval( $_GET['post_id'] ) : null );
 
 			if ( is_null( $tmdb_id ) )
-				return new WP_Error( 'missing_id', __( 'Required TMDb ID not provided or invalid.', 'wpmovielibrary' ) );
+				return new WP_Error( 'missing_id', __( 'Required TMDb ID not provided or invalid.', 'wpml-trailers' ) );
 
 			$response = self::get_trailers( $tmdb_id );
 
@@ -233,7 +235,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			$movie_id = ( isset( $_GET['movie_id'] ) && '' != $_GET['movie_id'] ? intval( $_GET['movie_id'] ) : null );
 
 			if ( is_null( $movie_id ) )
-				return new WP_Error( 'missing_id', __( 'Required Allociné Movie ID not provided or invalid.', 'wpmovielibrary' ) );
+				return new WP_Error( 'missing_id', __( 'Required Allociné Movie ID not provided or invalid.', 'wpml-trailers' ) );
 
 			$response = WPMLTR_Allocine::get_trailers( $movie_id );
 
@@ -244,6 +246,71 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 			$trailers = WPMLTR_TMDb::get_trailers( $tmdb_id );
 			return $trailers;
+		}
+
+		/**
+		 * Save Trailers along with movie.
+		 *
+		 * @since    1.0
+		 *
+		 * @param    int        $post_ID Post ID.
+		 * @param    WP_Post    $post Post object.
+		 * @param    bool       $update Whether this is an existing post being updated or not.
+		 */
+		public function save_trailers( $post_ID, $post, $update ) {
+
+			if ( ! current_user_can( 'edit_post', $post_ID ) )
+				return new WP_Error( __( 'You are not allowed to edit posts.', 'wpml-trailers' ) );
+
+			if ( ! $post = get_post( $post_ID ) || 'movie' != get_post_type( $post ) )
+				return new WP_Error( sprintf( __( 'Posts with #%s is invalid or is not a movie.', 'wpml-trailers' ), $post_ID ) );
+
+			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+				return $post_ID;
+
+			$errors = new WP_Error();
+
+			if ( isset( $_POST['wpml_data'] ) && '' != $_POST['wpml_data'] ) {
+
+				$data = $_POST['wpml_data'];
+
+				$trailer  = ( isset( $data['trailer'] ) && '' != $data['trailer'] ? intval( $data['trailer'] ) : null );
+				$trailers = ( isset( $data['trailers'] ) && '' != $data['trailers'] ? $this->_json_decode( $data['trailers'] ) : null );
+
+				if ( ! is_null( $trailer ) )
+					$trailer = update_post_meta( $post_ID, '_wpml_movie_trailer', $trailer );
+				if ( ! is_null( $trailers ) )
+					$trailers = update_post_meta( $post_ID, '_wpml_movie_trailers', $trailers );
+
+				if ( ! $trailer )
+					$errors->add( 'trailer', __( 'An error occurred while saving the trailer.', 'wpml-trailers' ) );
+				if ( ! $trailers )
+					$errors->add( 'trailer', __( 'An error occurred while saving trailers.', 'wpml-trailers' ) );
+
+				return ( ! empty( $errors->errors ) ? $errors : $post_ID );
+			}
+		}
+
+		/**
+		 * Decode a stringified JSON.
+		 * 
+		 * All this stuff is somehow need to get a proper array.
+		 * 
+		 * @since    1.0
+		 * 
+		 * @param    string    JSON string
+		 * 
+		 * @return   array     Decoded data
+		 */
+		private function _json_decode( $json ) {
+
+			$json = esc_attr( $json );
+			$json = utf8_decode( $json );
+			$json = html_entity_decode( $json );
+			$json = stripslashes( $json );
+			$json = json_decode( $json );
+
+			return $json;
 		}
 
 		/**

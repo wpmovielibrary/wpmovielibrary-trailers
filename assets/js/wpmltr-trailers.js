@@ -6,20 +6,18 @@ var wpml_trailers
 	wpml.trailers = wpml_trailers = {
 
 		_search: '#wpml-search-trailers',
+		_empty: '#wpml-empty-trailers',
 		_source: '#wpml-trailer-source',
 		_tmdb_id: '#tmdb_data_tmdb_id',
 		_post_id: '#post_ID',
 		_title: '#tmdb_data_title',
-		_list: '#wpml-trailers-list'
+		_list: '#wpml-trailers-list',
+		_select: '#wpml-trailers-movies-select',
+		_trailer: '#wpml_data_trailer',
+		_trailers: '#wpml_data_trailers',
+		_spinner: '#wpml-trailers .spinner',
+		_frame: '#wpml-trailer-frame'
 	};
-
-		wpml.trailers.init = function() {
-
-			$( wpml_trailers._search ).on( 'click', function( e ) {
-				e.preventDefault();
-				wpml_trailers.search();
-			} );
-		};
 
 		wpml.trailers.search = function() {
 
@@ -39,7 +37,9 @@ var wpml_trailers
 				$.ajax({
 					type: 'GET',
 					url: 'http://essearch.allocine.net/fr/autocomplete?q=' + title,
-					beforeSend: function() {},
+					beforeSend: function() {
+						$( wpml_trailers._spinner ).addClass( 'visible' );
+					},
 					success: function( response ) {
 						if ( ! response.length )
 							return false;
@@ -57,28 +57,10 @@ var wpml_trailers
 						wpml_trailers_allocine.load_page( movies[0].id );
 						
 					},
-					complete: function() {},
+					complete: function() {
+						$( wpml_trailers._spinner ).removeClass( 'visible' );
+					},
 					error: function() {}
-				});
-			};
-
-			wpml.trailers.allocine.load_page = function( movie_id ) {
-
-				wpml._get({
-					data: {
-						action: 'wpml_load_allocine_page',
-						nonce: wpml.get_nonce( 'search-trailer' ),
-						movie_id: movie_id
-					},
-					error: function( response ) {
-						wpml_state.clear();
-						$.each( response.responseJSON.errors, function() {
-							wpml_state.set( this, 'error' );
-						});
-					},
-					success: function( response ) {
-						$( wpml_trailers._list ).text( response.data[0] );
-					}
 				});
 			};
 
@@ -87,12 +69,68 @@ var wpml_trailers
 				if ( ! movies.length )
 					return false;
 
-				$list = $( '<div/>', { id: 'wpml-trailers-movies-select' } );
-				$( wpml_trailers._list ).append( $list );
+				$( wpml_trailers._select ).empty();
 
 				$.each( movies, function() {
-					$list.append( '<div class="tmdb_select_movie"><a id="allocine_' + this.id + '" href="#" onclick="wpml_trailers_allocine.load_page( ' + this.id + ' ); return false;"><img src="' + this.thumbnail + '" /><em>' + this.title1 + '</em></a></div>' );
+
+					if ( undefined == this.thumbnail )
+						this.thumbnail = 'http://fr.web.img1.acsta.net/c_160_240/commons/emptymedia/empty_photo.jpg';
+					else
+						this.thumbnail = this.thumbnail.replace( '75_100', '160_240' );
+
+					$( wpml_trailers._select ).append( '<div class="wpml-select-movie"><a id="allocine_' + this.id + '" href="#" onclick="wpml_trailers_allocine.load_page( ' + this.id + ' ); return false;"><img src="' + this.thumbnail + '" /><em>' + this.title1 + '</em></a></div>' );
 				} );
+			};
+
+			wpml.trailers.allocine.load_page = function( movie_id ) {
+
+				$( wpml_trailers._select ).empty();
+				$( wpml_trailers._list ).empty();
+
+				wpml._get({
+					data: {
+						action: 'wpml_load_allocine_page',
+						nonce: wpml.get_nonce( 'search-trailer' ),
+						movie_id: movie_id
+					},
+					beforeSend: function() {
+						$( wpml_trailers._spinner ).addClass( 'visible' );
+					},
+					error: function( response ) {
+						wpml_state.clear();
+						$.each( response.responseJSON.errors, function() {
+							wpml_state.set( this, 'error' );
+						});
+					},
+					success: function( response ) {
+						featured = true;
+						$.each( response.data, function( i, item ) {
+							if ( featured ) {
+								$( wpml_trailers._trailer ).val( this.media_id );
+								wpml_trailers_allocine.load_player( this.media_id, this.movie_id );
+								featured = false;
+							}
+							$( wpml_trailers._list ).append( '<div class="wpml-select-trailer"><a href="#" onclick="wpml_trailers_allocine.load_player( ' + this.media_id + ', ' + this.movie_id + ' ); return false;"><img src="' + this.thumbnail + '" alt="' + this.title + '" /> <span>' + this.title + '</span></a>' );
+						});
+						$( wpml_trailers._trailers ).val( JSON.stringify( response.data ) );
+					},
+					complete: function() {
+						$( wpml_trailers._spinner ).removeClass( 'visible' );
+					}
+				});
+			};
+
+			wpml.trailers.allocine.load_player = function( media_id, movie_id ) {
+
+				var url = 'http://www.allocine.fr/_video/iblogvision.aspx?cmedia=' + media_id,
+				   link = 'http://www.allocine.fr/video/player_gen_cmedia=' + media_id + '&cfilm=' + movie_id + '.html',
+				   code = '<iframe src="' + url + '" width="640" height="320px" frameborder="0"></iframe>';
+				$( wpml_trailers._frame ).find( 'iframe' ).prop( 'src', url );
+				$( wpml_trailers._frame ).find( 'iframe' ).attr( 'src', url );
+				$( wpml_trailers._frame ).find( '#wpml_trailer_url' ).val( url );
+				$( wpml_trailers._frame ).find( '#wpml_trailer_page' ).val( link );
+				$( wpml_trailers._frame ).find( '#wpml_trailer_code' ).val( code );
+				$( wpml_trailers._frame ).show();
 			};
 
 		wpml.trailers.tmdb = wpml_trailers_tmdb = {};
@@ -107,6 +145,9 @@ var wpml_trailers
 						tmdb_id: $( wpml_trailers._tmdb_id ).val(),
 						post_id: $( wpml_trailers._post_id ).val()
 					},
+					beforeSend: function() {
+						$( wpml_trailers._spinner ).addClass( 'visible' );
+					},
 					error: function( response ) {
 						wpml_state.clear();
 						$.each( response.responseJSON.errors, function() {
@@ -115,8 +156,17 @@ var wpml_trailers
 					},
 					success: function( response ) {
 						console.log( response );
+					},
+					complete: function() {
+						$( wpml_trailers._spinner ).removeClass( 'visible' );
 					}
 				});
 			};
 
-	wpml_trailers.init();
+		wpml.trailers.empty = function() {
+
+			$( wpml_trailers._select ).empty();
+			$( wpml_trailers._list ).empty();
+			$( wpml_trailers._trailer ).val( '' );
+			$( wpml_trailers._trailers ).val( '' );
+		};

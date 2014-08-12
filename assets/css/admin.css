@@ -34,9 +34,12 @@
 	display: none;
 	float: left;
 	margin: 1em 0.5em 0.5em 0.5em;
-/* 	text-align: center; */
 	max-width: 746px;
 	width: 100%;
+}
+
+#wpml-trailer-frame.visible {
+	display: inline;
 }
 
 #wpml-trailer-frame iframe {

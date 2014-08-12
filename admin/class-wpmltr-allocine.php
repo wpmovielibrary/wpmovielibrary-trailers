@@ -12,13 +12,11 @@
 if ( ! class_exists( 'WPMLTR_Allocine' ) ) :
 
 	/**
-	 * 
+	 * Find Allociné Trailers
 	 * 
 	 * @since    1.0
 	 */
 	class WPMLTR_Allocine {
-
-		const autocomplete = 'http://essearch.allocine.net/fr/autocomplete';
 
 		/**
 		 * Default constructor
@@ -31,27 +29,23 @@ if ( ! class_exists( 'WPMLTR_Allocine' ) ) :
 		}
 
 		/**
-		 * Get movie's trailers
+		 * Get movie trailers
+		 * 
+		 * Use HTTP Api to get the movie's basic page and extract media
+		 * ids for the trailers.
 		 * 
 		 * @since    1.0
 		 * 
-		 * @param    string    $title Movie title to search
+		 * @param    int      $movie_id Movie ID
 		 * 
-		 * @return   array     TMDb result
+		 * @return   array    TMDb result
 		 */
-		public static function get_trailers( $title ) {
-
-			$pages = self::get_movie_page( $title );
-
-			return $pages;
-		}
-
-		private static function get_movie_page( $movie_id ) {
+		public static function get_trailers( $movie_id ) {
 
 			$trailers = array();
 
 			$default = 'http://fr.web.img4.acsta.net/c_240_160/commons/emptymedia/entities/empty_videoportal.jpg';
-			$url = "http://www.allocine.fr/film/fichefilm_gen_cfilm={$movie_id}.html";
+			$url     = "http://www.allocine.fr/film/fichefilm_gen_cfilm={$movie_id}.html";
 			$page = wp_remote_get( $url );
 
 			if ( is_wp_error( $page ) )

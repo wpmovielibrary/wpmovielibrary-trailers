@@ -3,6 +3,11 @@ wpml = wpml || {};
 
 var wpml_trailers
 
+	/**
+	 * Get Trailers for your movies!
+	 * 
+	 * @since    1.0
+	 */
 	wpml.trailers = wpml_trailers = {
 
 		_search: '#wpml-search-trailers',
@@ -14,11 +19,20 @@ var wpml_trailers
 		_list: '#wpml-trailers-list',
 		_select: '#wpml-trailers-movies-select',
 		_trailer: '#wpml_data_trailer',
+		_trailer_data: '#wpml_data_trailer_data',
 		_trailers: '#wpml_data_trailers',
 		_spinner: '#wpml-trailers .spinner',
-		_frame: '#wpml-trailer-frame'
+		_frame: '#wpml-trailer-frame',
+
+		search: function() {},
+		empty: function() {},
 	};
 
+		/**
+		 * Get Trailers from... Where?
+		 * 
+		 * @since    1.0
+		 */
 		wpml.trailers.search = function() {
 
 			if ( 'allocine' == $( wpml_trailers._source ).val() )
@@ -27,8 +41,24 @@ var wpml_trailers
 				wpml_trailers.tmdb.search();
 		};
 
-		wpml.trailers.allocine = wpml_trailers_allocine = {};
+		/**
+		 * Get Trailers from Allociné
+		 * 
+		 * @since    1.0
+		 */
+		wpml.trailers.allocine = wpml_trailers_allocine = {
 
+			search: function() {},
+			select: function() {},
+			get_trailers: function() {},
+			load_trailer: function() {},
+		};
+
+			/**
+			 * Search for the movie using Allociné's autocomplete URI.
+			 * 
+			 * @since    1.0
+			 */
 			wpml.trailers.allocine.search = function() {
 
 				var title = $( wpml_trailers._title ).val(),
@@ -54,7 +84,7 @@ var wpml_trailers
 							return false;
 						}
 
-						wpml_trailers_allocine.load_page( movies[0].id );
+						wpml_trailers_allocine.get_trailers( movies[0].id );
 						
 					},
 					complete: function() {
@@ -64,6 +94,18 @@ var wpml_trailers
 				});
 			};
 
+			/**
+			 * Show a list of movies matching the current Movie.
+			 * 
+			 * Allociné autocomplete returns a few movies that can
+			 * possibly match the movie we want, a user choice must
+			 * be made. Display titles and posters just like the 
+			 * select list in Metadata Metabox.
+			 * 
+			 * @since    1.0
+			 * 
+			 * @param    int    movies Available movies matching the current Movie
+			 */
 			wpml.trailers.allocine.select = function( movies ) {
 
 				if ( ! movies.length )
@@ -78,11 +120,25 @@ var wpml_trailers
 					else
 						this.thumbnail = this.thumbnail.replace( '75_100', '160_240' );
 
-					$( wpml_trailers._select ).append( '<div class="wpml-select-movie"><a id="allocine_' + this.id + '" href="#" onclick="wpml_trailers_allocine.load_page( ' + this.id + ' ); return false;"><img src="' + this.thumbnail + '" /><em>' + this.title1 + '</em></a></div>' );
+					$( wpml_trailers._select ).append( '<div class="wpml-select-movie"><a id="allocine_' + this.id + '" href="#" onclick="wpml_trailers_allocine.get_trailers( ' + this.id + ' ); return false;"><img src="' + this.thumbnail + '" /><em>' + this.title1 + '</em></a></div>' );
 				} );
 			};
 
-			wpml.trailers.allocine.load_page = function( movie_id ) {
+			/**
+			 * Get the movie Trailers.
+			 * 
+			 * Movie page is downloaded using WordPress' HTTP Api and
+			 * parsed to extract the Trailers data (media ID, title and
+			 * thumbnail if any).
+			 * 
+			 * First result is set as the default trailer, other are
+			 * add below. Form inputs are filled.
+			 * 
+			 * @param    int    movie_id The movie ID 
+			 * 
+			 * @since    1.0
+			 */
+			wpml.trailers.allocine.get_trailers = function( movie_id ) {
 
 				$( wpml_trailers._select ).empty();
 				$( wpml_trailers._list ).empty();
@@ -107,10 +163,11 @@ var wpml_trailers
 						$.each( response.data, function( i, item ) {
 							if ( featured ) {
 								$( wpml_trailers._trailer ).val( this.media_id );
-								wpml_trailers_allocine.load_player( this.media_id, this.movie_id );
+								$( wpml_trailers._trailer_data ).val( JSON.stringify( this ) );
+								wpml_trailers_allocine.load_trailer( this.media_id, this.movie_id );
 								featured = false;
 							}
-							$( wpml_trailers._list ).append( '<div class="wpml-select-trailer"><a href="#" onclick="wpml_trailers_allocine.load_player( ' + this.media_id + ', ' + this.movie_id + ' ); return false;"><img src="' + this.thumbnail + '" alt="' + this.title + '" /> <span>' + this.title + '</span></a>' );
+							$( wpml_trailers._list ).append( '<div class="wpml-select-trailer"><a href="#" onclick="wpml_trailers_allocine.load_trailer( ' + this.media_id + ', ' + this.movie_id + ' ); return false;"><img src="' + this.thumbnail + '" alt="' + this.title + '" /> <span>' + this.title + '</span></a></div>' );
 						});
 						$( wpml_trailers._trailers ).val( JSON.stringify( response.data ) );
 					},
@@ -120,7 +177,17 @@ var wpml_trailers
 				});
 			};
 
-			wpml.trailers.allocine.load_player = function( media_id, movie_id ) {
+			/**
+			 * Update the Metabox content with select Trailer.
+			 * 
+			 * Fill the needed form inputs and user inputs.
+			 * 
+			 * @param    int    media_id The trailer media ID
+			 * @param    int    movie_id The movie ID 
+			 * 
+			 * @since    1.0
+			 */
+			wpml.trailers.allocine.load_trailer = function( media_id, movie_id ) {
 
 				var url = 'http://www.allocine.fr/_video/iblogvision.aspx?cmedia=' + media_id,
 				   link = 'http://www.allocine.fr/video/player_gen_cmedia=' + media_id + '&cfilm=' + movie_id + '.html',
@@ -133,8 +200,21 @@ var wpml_trailers
 				$( wpml_trailers._frame ).show();
 			};
 
-		wpml.trailers.tmdb = wpml_trailers_tmdb = {};
+		/**
+		 * Default Trailers source: TMDb API.
+		 * 
+		 * @since    1.0
+		 */
+		wpml.trailers.tmdb = wpml_trailers_tmdb = {
 
+			search: function() {},
+		};
+
+			/**
+			 * Search for Trailers using TMDb API.
+			 * 
+			 * @since    1.0
+			 */
 			wpml.trailers.tmdb.search = function() {
 
 				wpml._get({
@@ -163,10 +243,16 @@ var wpml_trailers
 				});
 			};
 
+		/**
+		 * Clean up the Trailers Metabox.
+		 * 
+		 * @since    1.0
+		 */
 		wpml.trailers.empty = function() {
 
 			$( wpml_trailers._select ).empty();
 			$( wpml_trailers._list ).empty();
 			$( wpml_trailers._trailer ).val( '' );
+			$( wpml_trailers._trailer_data ).val( '' );
 			$( wpml_trailers._trailers ).val( '' );
 		};

@@ -235,7 +235,16 @@ var wpml_trailers
 						});
 					},
 					success: function( response ) {
-						console.log( response );
+						$.each( response.data, function() {
+							this.thumbnail = 'http://img.youtube.com/vi/' + this.key + '/mqdefault.jpg';
+							/*if ( featured ) {
+								$( wpml_trailers._trailer ).val( this.key );
+								$( wpml_trailers._trailer_data ).val( JSON.stringify( this ) );
+								wpml_trailers_tmdb.load_trailer( this.key );
+							}*/
+							$( wpml_trailers._list ).append( '<div class="wpml-select-trailer"><a href="#" onclick="wpml_trailers_tmdb.load_trailer( "' + this.key + '" ); return false;"><img src="' + this.thumbnail + '" alt="' + this.name + '" /> <span>' + this.name + '</span></a></div>' );
+						});
+						//$( wpml_trailers._trailers ).val( JSON.stringify( response.data ) );
 					},
 					complete: function() {
 						$( wpml_trailers._spinner ).removeClass( 'visible' );

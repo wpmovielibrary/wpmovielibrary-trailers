@@ -318,7 +318,23 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 */
 		private static function get_trailers( $tmdb_id ) {
 
-			$trailers = WPMLTR_TMDb::get_trailers( $tmdb_id );
+			$lang = WPML_Settings::tmdb__lang();
+			$trailers_lang = WPMLTR_TMDb::get_videos( $tmdb_id, $lang );
+
+			if ( 'en' != $lang ) {
+
+				$trailers_gen  = WPMLTR_TMDb::get_videos( $tmdb_id, 'en' );
+
+				if ( isset( $trailers_lang['results'] ) && isset( $trailers_gen['results'] ) )
+					$trailers = array_merge( $trailers_lang['results'], $trailers_gen['results'] );
+				else if ( isset( $trailers_lang['results'] ) && ! isset( $trailers_gen['results'] ) )
+					$trailers = $trailers_lang['results'];
+				else if ( ! isset( $trailers_lang['results'] ) && isset( $trailers_gen['results'] ) )
+					$trailers = $trailers_gen['results'];
+			}
+			else
+				$trailers = $trailers_lang;
+
 			return $trailers;
 		}
 

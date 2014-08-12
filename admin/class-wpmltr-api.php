@@ -47,6 +47,20 @@ if ( class_exists( 'TMDb' ) && ! class_exists( 'WPMLTR_Api' ) ) :
 			$params = array( 'language' => is_null( $lang ) ? WPML_Settings::tmdb__lang() : $lang );
 			return $this->_makeCall( "movie/{$id}/trailers", $params );
 		}
+
+		/**
+		 * Retrieve movie videos
+		 *
+		 * @param    mixed    $id TMDb-id or IMDB-id
+		 * @param    mixed    $lang Filter the result with a language
+		 * 
+		 * @return   array    TMDb result 
+		 */
+		public function getVideos( $id, $lang ) {
+
+			$params = array( 'language' => is_null( $lang ) ? WPML_Settings::tmdb__lang() : $lang );
+			return $this->_makeCall( "movie/{$id}/videos", $params );
+		}
 	}
 
 endif;

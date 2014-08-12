@@ -47,7 +47,23 @@ if ( class_exists( 'WPML_TMDb' ) && ! class_exists( 'WPMLTR_TMDb' ) ) :
 		public static function get_trailers( $id, $lang = null ) {
 
 			$api = new WPMLTR_Api();
-			return $api->getTrailers( $id, $params );
+			return $api->getTrailers( $id, $lang );
+		}
+
+		/**
+		 * Get movie's videos
+		 * 
+		 * @since    1.0
+		 * 
+		 * @param    int       $id Movie TMDb ID
+		 * @param    string    $lang Filter the result with a language
+		 * 
+		 * @return   array     TMDb result
+		 */
+		public static function get_videos( $id, $lang = null ) {
+
+			$api = new WPMLTR_Api();
+			return $api->getVideos( $id, $lang );
 		}
 
 	}

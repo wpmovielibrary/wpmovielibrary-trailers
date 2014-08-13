@@ -27,8 +27,8 @@
 				<div id="wpml-trailers-list"></div>
 
 				<?php WPML_Utils::_nonce_field( 'search-trailer' ) ?>
-				<input type="text" id="wpml_data_trailer" name="wpml_data[trailer]" value="<?php echo $trailer ?>" />
-				<input type="text" id="wpml_data_trailer_data" name="wpml_data[trailer_data]" value='<?php echo $trailer_data_ ?>' />
+				<input type="hidden" id="wpml_data_trailer" name="wpml_data[trailer]" value="<?php echo $trailer ?>" />
+				<input type="hidden" id="wpml_data_trailer_data" name="wpml_data[trailer_data]" value='<?php echo $trailer_data_ ?>' />
 
 				<div style="clear:both;"></div>
 

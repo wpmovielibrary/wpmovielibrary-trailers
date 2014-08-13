@@ -38,6 +38,8 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		public function init() {
 
 			$this->register_hook_callbacks();
+
+			$this->register_shortcodes();
 		}
 
 		/**
@@ -50,15 +52,22 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			add_action( 'activated_plugin', __CLASS__ . '::require_wpml_first' );
 
 			// Enqueue scripts and styles
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
 			add_action( 'save_post', array( $this, 'save_trailers' ), 10, 3 );
 
 			add_filter( 'wpml_filter_metaboxes', __CLASS__ . '::add_meta_box' );
+			add_filter( 'wpml_filter_shortcodes', __CLASS__ . '::add_movie_trailer_shortcode' );
 
 			add_action( 'wp_ajax_wpml_search_trailer', __CLASS__ . '::search_trailer_callback' );
 			add_action( 'wp_ajax_wpml_load_allocine_page', __CLASS__ . '::load_allocine_page_callback' );
+		}
+
+		public function register_shortcodes() {
+
+			add_shortcode( 'movie_trailer', __CLASS__ . '::movie_trailer_shortcode' );
 		}
 
 		/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -149,9 +158,19 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 *
 		 * @since    1.0
 		 */
+		public function enqueue_styles() {
+
+			wp_enqueue_style( WPMLTR_SLUG . '-css', WPMLTR_URL . '/assets/css/public.css', array(), WPMLTR_VERSION );
+		}
+
+		/**
+		 * Register and enqueue public-facing style sheet.
+		 *
+		 * @since    1.0
+		 */
 		public function admin_enqueue_styles() {
 
-			wp_enqueue_style( WPMLTR_SLUG . '-css', WPMLTR_URL . '/assets/css/admin.css', array(), WPMLTR_VERSION );
+			wp_enqueue_style( WPMLTR_SLUG . '-admin-css', WPMLTR_URL . '/assets/css/admin.css', array(), WPMLTR_VERSION );
 		}
 
 		/**
@@ -161,7 +180,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 */
 		public function admin_enqueue_scripts() {
 
-			wp_enqueue_script( WPMLTR_SLUG . '-js', WPMLTR_URL . '/assets/js/wpmltr-trailers.js', array( WPML_SLUG ), WPMLTR_VERSION, true );
+			wp_enqueue_script( WPMLTR_SLUG . 'admin-js', WPMLTR_URL . '/assets/js/wpmltr-trailers.js', array( WPML_SLUG ), WPMLTR_VERSION, true );
 		}
 
 		/**
@@ -284,18 +303,9 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			$trailer = get_post_meta( $post->ID, '_wpml_movie_trailer', true );
 			$trailer_data = get_post_meta( $post->ID, '_wpml_movie_trailer_data', true );
 
-			if ( 'youtube' == $trailer_data['site'] ) {
-				$url  = WPMLTR_TMDb::get_trailer_url( $trailer );
-				$link = WPMLTR_TMDb::get_trailer_link( $trailer );
-				$code = '&lt;iframe src="' . $url . '" width="640" height="320px" frameborder="0"&gt;&lt;/iframe&gt;';
-			}
-			else if ( 'allocine' == $trailer_data['site'] ) {
-				$url  = WPMLTR_Allocine::get_trailer_url( $trailer );
-				$link = WPMLTR_Allocine::get_trailer_link( $trailer, $trailer_data['movie_id'] );
-				$code = '&lt;iframe src="' . $url . '" width="640" height="320px" frameborder="0"&gt;&lt;/iframe&gt;';
-			}
-			else
-				return false;
+			$url  = call_user_func( __CLASS__ . "::get_{$trailer_data['site']}_trailer_url", $trailer );
+			$link = call_user_func( __CLASS__ . "::get_{$trailer_data['site']}_trailer_link", $trailer );
+			$code = htmlentities( $url );
 
 			$attributes = array(
 				'style'         => ( ! $trailer ? '' : ' class="visible"' ),
@@ -310,12 +320,26 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			echo self::render_template( 'metaboxes/movie-trailers.php', $attributes );
 		}
 
-
 		/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 		 *
 		 *                              Trailers
 		 * 
 		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+		/**
+		 * Get a movie's trailer.
+		 *
+		 * @since    1.0
+		 *
+		 * @param    int      $post_id Post ID.
+		 * 
+		 * @return   bool|array    Trailer data or false
+		 */
+		public static function get_movie_trailer( $post_id ) {
+
+			$trailer = get_post_meta( $post_id, '_wpml_movie_trailer_data', true );
+			return $trailer;
+		}
 
 		/**
 		 * Get Trailers from the API.
@@ -391,14 +415,183 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			return ( ! empty( $errors->errors ) ? $errors : $post_ID );
 		}
 
+		/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+		 *
+		 *                             Shortcodes
+		 * 
+		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+		/**
+		 * Add Movie Trailer shortcode to the list of WPML Shortcodes.
+		 *
+		 * @since    1.0
+		 * 
+		 * @param    array    WPML Shortcodes list
+		 * 
+		 * @return   array    Updated Shortcodes list
+		 */
+		public static function add_movie_trailer_shortcode( $shortcodes ) {
+
+			$new_shortcode = array(
+				'movie_trailer' => array(
+					'atts' => array(
+						'id' => array( 'values' => null, 'filter' => 'esc_attr' ),
+						'title' => array( 'default' => null, 'values' => null, 'filter' => 'esc_attr' ),
+						'height' => array( 'default' => 360, 'values' => null, 'filter' => 'intval' ),
+						'width' => array( 'default' => 640, 'values' => null, 'filter' => 'intval' ),
+						'link' => array( 'default' => false, 'values' => 'boolean', 'filter' => 'esc_attr' )
+					),
+					'callback' => __CLASS__ . '::movie_trailer_shortcode',
+				)
+			);
+
+			$shortcodes = array_merge( $shortcodes, $new_shortcode );
+
+			return $shortcodes;
+		}
+
+		/**
+		 * Movie Trailer shortcode.
+		 *
+		 * @since    1.2
+		 * 
+		 * @param    array     Shortcode attributes
+		 * @param    string    Shortcode content
+		 * 
+		 * @return   string    Shortcode display
+		 */
+		public static function movie_trailer_shortcode( $atts, $content ) {
+
+			$atts = apply_filters( 'wpml_filter_shortcode_atts', 'movie_trailer', $atts );
+
+			// Caching
+			$name = apply_filters( 'wpml_cache_name', 'movie_trailer_shortcode', $atts );
+			$content = WPML_Cache::output( $name, function() use ( $atts, $content ) {
+
+				extract( $atts );
+
+				$movie_id = WPML_Shortcodes::find_movie_id( $id, $title );
+				if ( is_null( $movie_id ) )
+					return $content;
+
+				$trailer = self::get_movie_trailer( $movie_id );
+				if ( '' == $trailer )
+					return $content;
+
+				if ( ! in_array( $trailer['site'], array( 'youtube', 'allocine' ) ) )
+					return $content;
+
+				$url = call_user_func( __CLASS__ . "::get_{$trailer['site']}_trailer_url", $trailer['id'] );
+
+				if ( false != $link ) {
+					$atts['link'] = call_user_func( __CLASS__ . "::get_{$trailer['site']}_trailer_link", $trailer['id'] );
+					$atts['title'] = $trailer['title'];
+				}
+
+				$content = self::get_player( $url, $atts );
+				$content = apply_filters( 'wpml_format_movie_trailer', $content );
+
+				return $content;
+
+			}, $echo = false );
+
+			return $content;
+		}
+
+		/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+		 *
+		 *                               Utils
+		 * 
+		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+		/**
+		 * Return an iframe player for the Trailers.
+		 *
+		 * @since    1.0
+		 *
+		 * @param    array    Trailers URL
+		 *
+		 * @return   array    HTML Player
+		 */
+		private static function get_player( $url, $args ) {
+
+			extract( $args );
+
+			$frame = '<iframe src="' . $url . '" width="' . $width . '" height="' . $height . '" frameborder="0" allowfullscreen></iframe>';
+
+			if ( ! $link )
+				return $frame;
+
+			$content = '<div class="wpml-movie-trailer-shortcode">' . $frame . '<p class="wpml-movie-trailer-text"><a href="' . $link . '">' . $title . '</a></p></div>';
+
+			return $content;
+		}
+
+		/**
+		 * Return trailer's video URL.
+		 * 
+		 * @since    1.0
+		 * 
+		 * @param    int      $media_id Trailers's media ID
+		 * 
+		 * @return   string    Trailer URL
+		 */
+		private static function get_allocine_trailer_url( $media_id ) {
+
+			return "http://www.allocine.fr/_video/iblogvision.aspx?cmedia={$media_id}";
+		}
+
+		/**
+		 * Return trailer's page URL.
+		 * 
+		 * @since    1.0
+		 * 
+		 * @param    int      $media_id Trailers's media ID
+		 * @param    int      $movie_id Trailers's Movie ID
+		 * 
+		 * @return   string    Trailer's page URL
+		 */
+		private static function get_allocine_trailer_link( $media_id, $movie_id ) {
+
+			return "http://www.allocine.fr/video/player_gen_cmedia={$media_id}&amp;cfilm={$movie_id}.html";
+		}
+
+		/**
+		 * Return trailer's video URL.
+		 * 
+		 * @since    1.0
+		 * 
+		 * @param    int      $id Trailers's ID
+		 * 
+		 * @return   string    Trailer URL
+		 */
+		private static function get_youtube_trailer_url( $id ) {
+
+			return "https://www.youtube.com/embed/{$id}";
+		}
+
+		/**
+		 * Return trailer's page URL.
+		 * 
+		 * @since    1.0
+		 * 
+		 * @param    int      $id Trailers's ID
+		 * 
+		 * @return   string    Trailer's page URL
+		 */
+		private static function get_youtube_trailer_link( $id ) {
+
+			return "https://www.youtube.com/watch?v={$id}";
+		}
+
 		/**
 		 * Prepare Trailers data.
 		 *
-		 * @since 1.0
+		 * @since    1.0
 		 *
-		 * @param array Trailers data
+		 * @param    array    Trailers data
 		 *
-		 * @return array Filtered data
+		 * @return   array    Filtered data
 		 */
 		private function filter_trailer( $trailer ) {
 

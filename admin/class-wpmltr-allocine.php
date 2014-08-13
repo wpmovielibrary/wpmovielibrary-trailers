@@ -78,35 +78,6 @@ if ( ! class_exists( 'WPMLTR_Allocine' ) ) :
 			return $trailers;
 		}
 
-		/**
-		 * Return trailer's video URL.
-		 * 
-		 * @since    1.0
-		 * 
-		 * @param    int      $media_id Trailers's media ID
-		 * 
-		 * @return   string    Trailer URL
-		 */
-		public static function get_trailer_url( $media_id ) {
-
-			return "http://www.allocine.fr/_video/iblogvision.aspx?cmedia={$media_id}";
-		}
-
-		/**
-		 * Return trailer's page URL.
-		 * 
-		 * @since    1.0
-		 * 
-		 * @param    int      $media_id Trailers's media ID
-		 * @param    int      $movie_id Trailers's Movie ID
-		 * 
-		 * @return   string    Trailer's page URL
-		 */
-		public static function get_trailer_link( $media_id, $movie_id ) {
-
-			return "http://www.allocine.fr/video/player_gen_cmedia={$media_id}&amp;cfilm={$movie_id}.html";
-		}
-
 	}
 
 endif;

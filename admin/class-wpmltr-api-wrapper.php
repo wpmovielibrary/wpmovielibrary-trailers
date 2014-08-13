@@ -91,34 +91,6 @@ if ( class_exists( 'WPML_TMDb' ) && ! class_exists( 'WPMLTR_TMDb' ) ) :
 			return $_data;
 		}
 
-		/**
-		 * Return trailer's video URL.
-		 * 
-		 * @since    1.0
-		 * 
-		 * @param    int      $id Trailers's ID
-		 * 
-		 * @return   string    Trailer URL
-		 */
-		public static function get_trailer_url( $id ) {
-
-			return "https://www.youtube.com/embed/{$id}";
-		}
-
-		/**
-		 * Return trailer's page URL.
-		 * 
-		 * @since    1.0
-		 * 
-		 * @param    int      $id Trailers's ID
-		 * 
-		 * @return   string    Trailer's page URL
-		 */
-		public static function get_trailer_link( $id ) {
-
-			return "https://www.youtube.com/watch?v={$id}";
-		}
-
 	}
 
 endif;

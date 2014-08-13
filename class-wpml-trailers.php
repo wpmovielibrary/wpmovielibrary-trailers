@@ -73,6 +73,8 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 */
 		public function register_hook_callbacks() {
 
+			add_action( 'plugins_loaded', 'wpmltr_l10n' );
+
 			add_action( 'activated_plugin', __CLASS__ . '::require_wpml_first' );
 
 			// Enqueue scripts and styles
@@ -258,7 +260,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			$post_id = ( isset( $_GET['post_id'] ) && '' != $_GET['post_id'] ? intval( $_GET['post_id'] ) : null );
 
 			if ( is_null( $tmdb_id ) )
-				return new WP_Error( 'missing_id', __( 'Required TMDb ID not provided or invalid.', 'wpml-trailers' ) );
+				return new WP_Error( 'missing_id', __( 'Required TMDb ID not provided or invalid.', 'wpmovielibrary-trailers' ) );
 
 			$response = self::get_trailers( $tmdb_id );
 
@@ -277,7 +279,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			$movie_id = ( isset( $_GET['movie_id'] ) && '' != $_GET['movie_id'] ? intval( $_GET['movie_id'] ) : null );
 
 			if ( is_null( $movie_id ) )
-				return new WP_Error( 'missing_id', __( 'Required Allociné Movie ID not provided or invalid.', 'wpml-trailers' ) );
+				return new WP_Error( 'missing_id', __( 'Required Allociné Movie ID not provided or invalid.', 'wpmovielibrary-trailers' ) );
 
 			$response = WPMLTR_Allocine::get_trailers( $movie_id );
 
@@ -306,7 +308,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 				array(
 					array(
 						'id'            => 'wpml_trailers',
-						'title'         => __( 'WPMovieLibrary − Trailers', 'wpml-trailers' ),
+						'title'         => __( 'WPMovieLibrary − Trailers', 'wpmovielibrary-trailers' ),
 						'callback'      => 'WPMovieLibrary_Trailers::metabox_content',
 						'screen'        => 'movie',
 						'context'       => 'normal',
@@ -332,12 +334,19 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			$trailer = get_post_meta( $post->ID, '_wpml_movie_trailer', true );
 			$trailer_data = get_post_meta( $post->ID, '_wpml_movie_trailer_data', true );
 
-			$url  = call_user_func( __CLASS__ . "::get_{$trailer_data['site']}_trailer_url", $trailer );
-			$link = call_user_func( __CLASS__ . "::get_{$trailer_data['site']}_trailer_link", $trailer );
-			$code = htmlentities( $url );
+			if ( isset( $trailer_data['site'] ) && '' != $trailer_data['site'] ) {
+				$url  = call_user_func( __CLASS__ . "::get_{$trailer_data['site']}_trailer_url", $trailer );
+				$link = call_user_func( __CLASS__ . "::get_{$trailer_data['site']}_trailer_link", $trailer );
+				$code = htmlentities( $url );
+			}
+			else {
+				$url  = '';
+				$link = '';
+				$code = '';
+			}
 
 			$attributes = array(
-				'style'         => ( ! $trailer ? '' : ' class="visible"' ),
+				'style'         => ( ! $url ? '' : ' class="visible"' ),
 				'trailer'       => $trailer,
 				'trailer_data'  => $trailer_data,
 				'trailer_data_' => json_encode( $trailer_data ),
@@ -415,10 +424,10 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		public function save_trailers( $post_ID, $post, $update ) {
 
 			if ( ! current_user_can( 'edit_post', $post_ID ) )
-				return new WP_Error( __( 'You are not allowed to edit posts.', 'wpml-trailers' ) );
+				return new WP_Error( __( 'You are not allowed to edit posts.', 'wpmovielibrary-trailers' ) );
 
 			if ( ! $post = get_post( $post_ID ) || 'movie' != get_post_type( $post ) )
-				return new WP_Error( sprintf( __( 'Posts with #%s is invalid or is not a movie.', 'wpml-trailers' ), $post_ID ) );
+				return new WP_Error( sprintf( __( 'Posts with #%s is invalid or is not a movie.', 'wpmovielibrary-trailers' ), $post_ID ) );
 
 			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 				return $post_ID;
@@ -438,7 +447,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 					$trailer_data = update_post_meta( $post_ID, '_wpml_movie_trailer_data', $trailer_data );
 
 				if ( ! $trailer || ! $trailer_data )
-					$errors->add( 'trailer', __( 'An error occurred while saving the trailer.', 'wpml-trailers' ) );
+					$errors->add( 'trailer', __( 'An error occurred while saving the trailer.', 'wpmovielibrary-trailers' ) );
 			}
 
 			return ( ! empty( $errors->errors ) ? $errors : $post_ID );

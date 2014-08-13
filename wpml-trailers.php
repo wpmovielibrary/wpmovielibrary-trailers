@@ -88,9 +88,12 @@ function wpmltr_requirements_error() {
  * @since    1.0.1
  */
 function wpmltr_l10n() {
-	$locale = apply_filters( 'plugin_locale', get_locale(), 'wpml-trailers' );
-	load_textdomain( 'wpml-trailers', trailingslashit( WP_LANG_DIR ) . basename( __DIR__ ) . '/languages/' . 'wpml-trailers' . '-' . $locale . '.mo' );
-	load_plugin_textdomain( 'wpml-trailers', FALSE, basename( __DIR__ ) . '/languages/' );
+
+	$domain = 'wpmovielibrary-trailers';
+	$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
+
+	load_textdomain( $domain, WPMLTR_PATH . 'languages/' . $domain . '-' . $locale . '.mo' );
+	load_plugin_textdomain( $domain, FALSE, basename( __DIR__ ) . '/languages/' );
 }
 
 /*

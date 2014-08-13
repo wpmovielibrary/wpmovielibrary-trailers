@@ -24,6 +24,7 @@
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
 	display: block;
 	margin-bottom: 0.5em;
+	max-width: 240px;
 }
 
 #wpml-trailers .wpml-select-trailer {
@@ -53,6 +54,7 @@
 	display: none;
 }
 
-#wpml-trailer-frame input {
+#wpml-trailer-frame input,
+#wpml-trailer-frame textarea {
 	width: 100%;
 }

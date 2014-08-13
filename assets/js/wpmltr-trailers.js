@@ -141,7 +141,6 @@ var wpml_trailers
 			wpml.trailers.allocine.get_trailers = function( movie_id ) {
 
 				$( wpml_trailers._select ).empty();
-				$( wpml_trailers._list ).empty();
 
 				wpml._get({
 					data: {
@@ -159,17 +158,14 @@ var wpml_trailers
 						});
 					},
 					success: function( response ) {
-						featured = true;
+						featured = ( '' == $( wpml_trailers._frame ).find( 'iframe' ).attr( 'src' ) );
 						$.each( response.data, function( i, item ) {
 							if ( featured ) {
-								$( wpml_trailers._trailer ).val( this.media_id );
-								$( wpml_trailers._trailer_data ).val( JSON.stringify( this ) );
-								wpml_trailers_allocine.load_trailer( this.media_id, this.movie_id );
+								wpml_trailers_allocine.load_trailer( this.id, this.movie_id );
 								featured = false;
 							}
-							$( wpml_trailers._list ).append( '<div class="wpml-select-trailer"><a href="#" onclick="wpml_trailers_allocine.load_trailer( ' + this.media_id + ', ' + this.movie_id + ' ); return false;"><img src="' + this.thumbnail + '" alt="' + this.title + '" /> <span>' + this.title + '</span></a></div>' );
+							$( wpml_trailers._list ).append( '<div class="wpml-select-trailer"><a href="#" onclick="wpml_trailers_allocine.load_trailer( ' + this.id + ', ' + this.movie_id + ' ); return false;"><img src="' + this.thumbnail + '" alt="' + this.title + '" /> <span>' + this.title + '</span></a><input type="hidden" id="trailer_data_' + this.id + '" value=\'' + JSON.stringify( this ) + '\' /></div>' );
 						});
-						$( wpml_trailers._trailers ).val( JSON.stringify( response.data ) );
 					},
 					complete: function() {
 						$( wpml_trailers._spinner ).removeClass( 'visible' );
@@ -191,7 +187,7 @@ var wpml_trailers
 
 				var url = 'http://www.allocine.fr/_video/iblogvision.aspx?cmedia=' + media_id,
 				   link = 'http://www.allocine.fr/video/player_gen_cmedia=' + media_id + '&cfilm=' + movie_id + '.html',
-				   code = '<iframe src="' + url + '" width="640" height="320px" frameborder="0"></iframe>';
+				   code = '<iframe src="' + url + '" width="640" height="320px" frameborder="0" allowfullscreen></iframe>';
 				$( wpml_trailers._frame ).find( 'iframe' ).prop( 'src', url );
 				$( wpml_trailers._frame ).find( 'iframe' ).attr( 'src', url );
 				$( wpml_trailers._frame ).find( '#wpml_trailer_url' ).val( url );
@@ -236,20 +232,44 @@ var wpml_trailers
 					},
 					success: function( response ) {
 						$.each( response.data, function() {
-							this.thumbnail = 'http://img.youtube.com/vi/' + this.key + '/mqdefault.jpg';
-							/*if ( featured ) {
-								$( wpml_trailers._trailer ).val( this.key );
-								$( wpml_trailers._trailer_data ).val( JSON.stringify( this ) );
-								wpml_trailers_tmdb.load_trailer( this.key );
-							}*/
-							$( wpml_trailers._list ).append( '<div class="wpml-select-trailer"><a href="#" onclick="wpml_trailers_tmdb.load_trailer( "' + this.key + '" ); return false;"><img src="' + this.thumbnail + '" alt="' + this.name + '" /> <span>' + this.name + '</span></a></div>' );
+							featured = ( '' == $( wpml_trailers._frame ).find( 'iframe' ).attr( 'src' ) );
+							this.thumbnail = 'http://img.youtube.com/vi/' + this.id + '/mqdefault.jpg';
+							if ( featured ) {
+								wpml_trailers_tmdb.load_trailer( this.id );
+							}
+							$( wpml_trailers._list ).append( '<div class="wpml-select-trailer"><a href="#" onclick="wpml_trailers_tmdb.load_trailer( \'' + this.id + '\' ); return false;"><img src="' + this.thumbnail + '" alt="' + this.title + '" /> <span>' + this.title + '</span></a><input type="hidden" id="trailer_data_' + this.id + '" value=\'' + JSON.stringify( this ) + '\' /></div>' );
 						});
-						//$( wpml_trailers._trailers ).val( JSON.stringify( response.data ) );
 					},
 					complete: function() {
 						$( wpml_trailers._spinner ).removeClass( 'visible' );
 					}
 				});
+			};
+
+			/**
+			 * Update the Metabox content with select Trailer.
+			 * 
+			 * Fill the needed form inputs and user inputs.
+			 * 
+			 * @param    int    media_id The trailer media ID
+			 * @param    int    movie_id The movie ID 
+			 * 
+			 * @since    1.0
+			 */
+			wpml.trailers.tmdb.load_trailer = function( id ) {
+
+				var url = 'https://www.youtube.com/embed/' + id,
+				   link = 'https://www.youtube.com/watch?v=' + id,
+				   code = '<iframe src="' + url + '" width="640" height="320px" frameborder="0" allowfullscreen></iframe>',
+				   data = $( '#trailer_data_' + id ).val();
+				$( wpml_trailers._frame ).find( 'iframe' ).prop( 'src', url );
+				$( wpml_trailers._frame ).find( 'iframe' ).attr( 'src', url );
+				$( wpml_trailers._frame ).find( '#wpml_trailer_url' ).val( url );
+				$( wpml_trailers._frame ).find( '#wpml_trailer_page' ).val( link );
+				$( wpml_trailers._frame ).find( '#wpml_trailer_code' ).val( code );
+				$( wpml_trailers._trailer ).val( id );
+				$( wpml_trailers._trailer_data ).val( data );
+				$( wpml_trailers._frame ).show();
 			};
 
 		/**

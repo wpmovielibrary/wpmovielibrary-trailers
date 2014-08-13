@@ -47,7 +47,10 @@ if ( class_exists( 'WPML_TMDb' ) && ! class_exists( 'WPMLTR_TMDb' ) ) :
 		public static function get_trailers( $id, $lang = null ) {
 
 			$api = new WPMLTR_Api();
-			return $api->getTrailers( $id, $lang );
+			$trailers = $api->getTrailers( $id, $lang );
+			$trailers = self::filter_data( $trailers );
+
+			return $trailers;
 		}
 
 		/**
@@ -63,7 +66,57 @@ if ( class_exists( 'WPML_TMDb' ) && ! class_exists( 'WPMLTR_TMDb' ) ) :
 		public static function get_videos( $id, $lang = null ) {
 
 			$api = new WPMLTR_Api();
-			return $api->getVideos( $id, $lang );
+			$videos = $api->getVideos( $id, $lang );
+			$videos = self::filter_data( $videos );
+
+			return $videos;
+		}
+
+		private static function filter_data( $data ) {
+
+			$_data = array();
+
+			if ( ! isset( $data['results'] ) || empty( $data['results'] ) )
+				return $_data;
+
+			foreach ( $data['results'] as $d )
+				$_data[] = array(
+					'id'        => $d['key'],
+					'site'      => 'youtube',
+					'title'     => $d['name'],
+					'thumbnail' => null,
+					'movie_id'  => null
+				);
+
+			return $_data;
+		}
+
+		/**
+		 * Return trailer's video URL.
+		 * 
+		 * @since    1.0
+		 * 
+		 * @param    int      $id Trailers's ID
+		 * 
+		 * @return   string    Trailer URL
+		 */
+		public static function get_trailer_url( $id ) {
+
+			return "https://www.youtube.com/embed/{$id}";
+		}
+
+		/**
+		 * Return trailer's page URL.
+		 * 
+		 * @since    1.0
+		 * 
+		 * @param    int      $id Trailers's ID
+		 * 
+		 * @return   string    Trailer's page URL
+		 */
+		public static function get_trailer_link( $id ) {
+
+			return "https://www.youtube.com/watch?v={$id}";
 		}
 
 	}

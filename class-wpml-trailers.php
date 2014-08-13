@@ -283,18 +283,28 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 			$trailer = get_post_meta( $post->ID, '_wpml_movie_trailer', true );
 			$trailer_data = get_post_meta( $post->ID, '_wpml_movie_trailer_data', true );
-			$trailers = get_post_meta( $post->ID, '_wpml_movie_trailers', true );
+
+			if ( 'youtube' == $trailer_data['site'] ) {
+				$url  = WPMLTR_TMDb::get_trailer_url( $trailer );
+				$link = WPMLTR_TMDb::get_trailer_link( $trailer );
+				$code = '&lt;iframe src="' . $url . '" width="640" height="320px" frameborder="0"&gt;&lt;/iframe&gt;';
+			}
+			else if ( 'allocine' == $trailer_data['site'] ) {
+				$url  = WPMLTR_Allocine::get_trailer_url( $trailer );
+				$link = WPMLTR_Allocine::get_trailer_link( $trailer, $trailer_data['movie_id'] );
+				$code = '&lt;iframe src="' . $url . '" width="640" height="320px" frameborder="0"&gt;&lt;/iframe&gt;';
+			}
+			else
+				return false;
 
 			$attributes = array(
 				'style'         => ( ! $trailer ? '' : ' class="visible"' ),
 				'trailer'       => $trailer,
 				'trailer_data'  => $trailer_data,
-				'trailers'      => $trailers,
 				'trailer_data_' => json_encode( $trailer_data ),
-				'trailers_'     => json_encode( $trailers ),
-				'url'           => 'http://www.allocine.fr/_video/iblogvision.aspx?cmedia=' . $trailer,
-				'link'          => 'http://www.allocine.fr/video/player_gen_cmedia=' . $trailer . '&amp;cfilm=' . $trailer_data['movie_id'] . '.html',
-				'code'          => '&lt;iframe src="' . $trailer . '" width="640" height="320px" frameborder="0"&gt;&lt;/iframe&gt;',
+				'url'           => $url,
+				'link'          => $link,
+				'code'          => $code,
 			);
 
 			echo self::render_template( 'metaboxes/movie-trailers.php', $attributes );
@@ -325,12 +335,12 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 				$trailers_gen  = WPMLTR_TMDb::get_videos( $tmdb_id, 'en' );
 
-				if ( isset( $trailers_lang['results'] ) && isset( $trailers_gen['results'] ) )
-					$trailers = array_merge( $trailers_lang['results'], $trailers_gen['results'] );
-				else if ( isset( $trailers_lang['results'] ) && ! isset( $trailers_gen['results'] ) )
-					$trailers = $trailers_lang['results'];
-				else if ( ! isset( $trailers_lang['results'] ) && isset( $trailers_gen['results'] ) )
-					$trailers = $trailers_gen['results'];
+				if ( isset( $trailers_lang ) && isset( $trailers_gen ) )
+					$trailers = array_merge( $trailers_lang, $trailers_gen );
+				else if ( isset( $trailers_lang ) && ! isset( $trailers_gen ) )
+					$trailers = $trailers_lang;
+				else if ( ! isset( $trailers_lang ) && isset( $trailers_gen ) )
+					$trailers = $trailers_gen;
 			}
 			else
 				$trailers = $trailers_lang;
@@ -366,21 +376,16 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 				$data = $_POST['wpml_data'];
 
-				$trailer  = ( isset( $data['trailer'] ) && '' != $data['trailer'] ? intval( $data['trailer'] ) : null );
-				$trailer_data = ( isset( $data['trailer_data'] ) && '' != $data['trailer_data'] ? $this->filter_trailer( $this->_json_decode( $data['trailer_data'] ) ) : null );
-				$trailers = ( isset( $data['trailers'] ) && '' != $data['trailers'] ? $this->filter_trailers( $this->_json_decode( $data['trailers'] ) ) : null );
+				$trailer  = ( isset( $data['trailer'] ) && '' != $data['trailer'] ? esc_attr( $data['trailer'] ) : null );
+				$trailer_data = ( isset( $data['trailer_data'] ) && '' != $data['trailer_data'] ? $this->_json_decode( $data['trailer_data'] ) : null );
 
 				if ( ! is_null( $trailer ) )
 					$trailer = update_post_meta( $post_ID, '_wpml_movie_trailer', $trailer );
 				if ( ! is_null( $trailer_data ) )
 					$trailer_data = update_post_meta( $post_ID, '_wpml_movie_trailer_data', $trailer_data );
-				if ( ! is_null( $trailers ) )
-					$trailers = update_post_meta( $post_ID, '_wpml_movie_trailers', $trailers );
 
 				if ( ! $trailer || ! $trailer_data )
 					$errors->add( 'trailer', __( 'An error occurred while saving the trailer.', 'wpml-trailers' ) );
-				if ( ! $trailers )
-					$errors->add( 'trailer', __( 'An error occurred while saving trailers.', 'wpml-trailers' ) );
 			}
 
 			return ( ! empty( $errors->errors ) ? $errors : $post_ID );
@@ -388,32 +393,12 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 		/**
 		 * Prepare Trailers data.
-		 * 
-		 * @since    1.0
-		 * 
-		 * @param    array    Trailers data
-		 * 
-		 * @return   array    Filtered data
-		 */
-		private function filter_trailers( $trailers ) {
-
-			$_trailers = array();
-
-			foreach ( $trailers as $trailer ) {
-				$_trailers[] = (array) $trailer;
-			}
-
-			return $_trailers;
-		}
-
-		/**
-		 * Prepare Trailers data.
-		 * 
-		 * @since    1.0
-		 * 
-		 * @param    array    Trailers data
-		 * 
-		 * @return   array    Filtered data
+		 *
+		 * @since 1.0
+		 *
+		 * @param array Trailers data
+		 *
+		 * @return array Filtered data
 		 */
 		private function filter_trailer( $trailer ) {
 
@@ -434,10 +419,10 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		private function _json_decode( $json ) {
 
 			$json = esc_attr( $json );
-			//$json = utf8_decode( $json );
 			$json = html_entity_decode( $json );
 			$json = stripslashes( $json );
 			$json = json_decode( $json );
+			$json = $this->filter_trailer( $json );
 
 			return $json;
 		}

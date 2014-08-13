@@ -20,27 +20,15 @@
 					<div id="wpml-trailer-details">
 						<label for="wpml_trailer_url"><?php _e( 'Video URI', 'wpml-trailers' ); ?> <input type="text" id="wpml_trailer_url" size="40" value="<?php echo $url ?>" /></label>
 						<label for="wpml_trailer_page"><?php _e( 'Trailer Page', 'wpml-trailers' ); ?> <input type="text" id="wpml_trailer_page" size="40" value="<?php echo $link ?>" /></label>
-						<label for="wpml_trailer_code"><?php _e( 'Embed Code', 'wpml-trailers' ); ?> <input type="text" id="wpml_trailer_code" size="40" value='<?php echo $code ?>' /></label>
+						<label for="wpml_trailer_code"><?php _e( 'Embed Code', 'wpml-trailers' ); ?><br /><textarea rows="3" cols="40" id="wpml_trailer_code"><?php echo $code ?></textarea></label>
 					</div>
 				</div>
 
-				<div id="wpml-trailers-list">
-
-<?php foreach ( $trailers as $_trailer ) : ?>
-					<div class="wpml-select-trailer">
-						<a href="#" onclick="wpml_trailers_allocine.load_trailer( <?php echo $_trailer['media_id'] ?>, <?php echo $_trailer['movie_id'] ?> ); return false;">
-							<img src="<?php echo $_trailer['thumbnail'] ?>" alt="<?php echo apply_filters( 'the_title', $_trailer['title'] ) ?>" />
-							<span><?php echo apply_filters( 'the_title', $_trailer['title'] ) ?></span>
-						</a>
-					</div>
-
-<?php endforeach; ?>
-				</div>
+				<div id="wpml-trailers-list"></div>
 
 				<?php WPML_Utils::_nonce_field( 'search-trailer' ) ?>
-				<input type="hidden" id="wpml_data_trailer" name="wpml_data[trailer]" value="<?php echo $trailer ?>" />
-				<input type="hidden" id="wpml_data_trailer_data" name="wpml_data[trailer_data]" value='<?php echo $trailer_data_ ?>' />
-				<input type="hidden" id="wpml_data_trailers" name="wpml_data[trailers]" value='<?php echo $trailers_[ 0 ] ?>' />
+				<input type="text" id="wpml_data_trailer" name="wpml_data[trailer]" value="<?php echo $trailer ?>" />
+				<input type="text" id="wpml_data_trailer_data" name="wpml_data[trailer_data]" value='<?php echo $trailer_data_ ?>' />
 
 				<div style="clear:both;"></div>
 

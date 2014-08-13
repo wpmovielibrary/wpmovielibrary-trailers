@@ -65,6 +65,11 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			add_action( 'wp_ajax_wpml_load_allocine_page', __CLASS__ . '::load_allocine_page_callback' );
 		}
 
+		/**
+		 * Register all shortcodes.
+		 *
+		 * @since    1.0
+		 */
 		public function register_shortcodes() {
 
 			add_shortcode( 'movie_trailer', __CLASS__ . '::movie_trailer_shortcode' );
@@ -435,7 +440,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			$new_shortcode = array(
 				'movie_trailer' => array(
 					'atts' => array(
-						'id' => array( 'values' => null, 'filter' => 'esc_attr' ),
+						'id' => array( 'default' => null, 'values' => null, 'filter' => 'esc_attr' ),
 						'title' => array( 'default' => null, 'values' => null, 'filter' => 'esc_attr' ),
 						'height' => array( 'default' => 360, 'values' => null, 'filter' => 'intval' ),
 						'width' => array( 'default' => 640, 'values' => null, 'filter' => 'intval' ),
@@ -453,7 +458,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		/**
 		 * Movie Trailer shortcode.
 		 *
-		 * @since    1.2
+		 * @since    1.0
 		 * 
 		 * @param    array     Shortcode attributes
 		 * @param    string    Shortcode content

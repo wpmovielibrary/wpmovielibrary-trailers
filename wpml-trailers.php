@@ -48,7 +48,9 @@ function wpmltr_requirements_met() {
 
 	global $wp_version;
 
-	if ( ! is_plugin_active( 'wpmovielibrary/wpmovielibrary.php' ) || ! defined( 'WPML_VERSION' ) )
+	if ( function_exists( 'is_plugin_active' ) && ! is_plugin_active( 'wpmovielibrary/wpmovielibrary.php' ) )
+		return false;
+	else if ( defined( 'WPML_VERSION' ) )
 		return false;
 
 	if ( version_compare( $wp_version, WPMLTR_REQUIRED_WP_VERSION, '<' ) )
@@ -57,7 +59,7 @@ function wpmltr_requirements_met() {
 	if ( version_compare( PHP_VERSION, WPMLTR_REQUIRED_PHP_VERSION, '<' ) )
 		return false;
 
-	if ( version_compare( WPML_VERSION, WPMLTR_REQUIRED_WPML_VERSION, '<' ) )
+	if ( ! defined( 'WPML_VERSION' ) || version_compare( WPML_VERSION, WPMLTR_REQUIRED_WPML_VERSION, '<' ) )
 		return false;
 
 	return true;

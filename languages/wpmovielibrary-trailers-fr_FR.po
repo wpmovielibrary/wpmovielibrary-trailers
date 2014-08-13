@@ -1,0 +1,135 @@
+# Copyright (C) 2014 
+# This file is distributed under the same license as the  package.
+msgid ""
+msgstr ""
+"Project-Id-Version: WPMovieLibrary-Trailers\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/wpmovielibrary-trailers\n"
+"POT-Creation-Date: 2014-08-13 22:36:52+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2014-08-14 00:51+0100\n"
+"Last-Translator: Charlie MERLAND <charlie@caercam.org>\n"
+"Language-Team: Charlie MERLAND <support@wpmovielibrary.com>\n"
+"X-Generator: Poedit 1.5.4\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Language: Français\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#: class-wpml-trailers.php:261
+msgid "Required TMDb ID not provided or invalid."
+msgstr "Le numéro identifiant TMDb du film est manquant ou invalide."
+
+#: class-wpml-trailers.php:280
+msgid "Required Allociné Movie ID not provided or invalid."
+msgstr "Le numéro identifiant Allociné du film est manquant ou invalide."
+
+#: class-wpml-trailers.php:309
+msgid "WPMovieLibrary − Trailers"
+msgstr "WPMovieLibrary − Trailers"
+
+#: class-wpml-trailers.php:418
+msgid "You are not allowed to edit posts."
+msgstr "Vous n'avez pas les droits nécessaires pour éditer ce film."
+
+#: class-wpml-trailers.php:421
+msgid "Posts with #%s is invalid or is not a movie."
+msgstr "Le contenu #%s est invalide ou n'est pas un film."
+
+#: class-wpml-trailers.php:441
+msgid "An error occurred while saving the trailer."
+msgstr "Une erreur s'est produite durant l'enregistrement de la bande-annonce."
+
+#: views/metaboxes/movie-trailers.php:4
+msgid "Find a trailer"
+msgstr "Ajouter une bande-annonce"
+
+#: views/metaboxes/movie-trailers.php:8
+msgid "YouTube"
+msgstr "YouTube"
+
+#: views/metaboxes/movie-trailers.php:9
+msgid "Allociné"
+msgstr "Allociné"
+
+#: views/metaboxes/movie-trailers.php:11
+msgid "Search"
+msgstr "Rechercher"
+
+#: views/metaboxes/movie-trailers.php:12
+msgid "Empty"
+msgstr "Vider"
+
+#: views/metaboxes/movie-trailers.php:19
+msgid ""
+"The above video will be used as the default trailer for this movie; to use "
+"an alternative trailer make your choice among the other videos below."
+msgstr ""
+"La vidéo ci-dessus sera utilisée comme bande-annonce pour ce film ; pour "
+"choisir une autre vidéo faites votre choix dans la liste suivante."
+
+#: views/metaboxes/movie-trailers.php:19
+msgid "Show more &raquo;"
+msgstr "Afficher &raquo;"
+
+#: views/metaboxes/movie-trailers.php:21
+msgid "Video URI"
+msgstr "Adresse de la vidéo"
+
+#: views/metaboxes/movie-trailers.php:22
+msgid "Trailer Page"
+msgstr "Adresse de la page"
+
+#: views/metaboxes/movie-trailers.php:23
+msgid "Embed Code"
+msgstr "Code à insérer"
+
+#: views/requirements-error.php:2
+msgid ""
+"WPMovieLibrary-Trailers error: your environment does not meet all of the "
+"system requirements listed below."
+msgstr ""
+"WPMovieLibrary-Trailers a rencontré une erreur : votre environment ne "
+"remplit pas les critères ci-dessous."
+
+#: views/requirements-error.php:6
+msgid "WPMovieLibrary is required"
+msgstr "WPMovieLibrary est nécessaire"
+
+#: views/requirements-error.php:6
+msgid ""
+"WPMovieLibrary-Trailers extends the WPMovieLibrary plugin and therefore "
+"requires it to be installed and activated."
+msgstr ""
+"WPMovieLibrary-Trailers ajoute des fonctionnalités au plugin WPMovieLibrary "
+"et nécessite donc son installation et son activation."
+
+#: views/requirements-error.php:13 views/requirements-error.php:17
+#: views/requirements-error.php:21
+msgid "(You're running version %s)"
+msgstr "(Vous utilisez la version %s)"
+
+#: views/requirements-error.php:25
+msgid ""
+"If you need to upgrade your version of PHP you can ask your hosting company "
+"for assistance, and if you need help upgrading WordPress you can refer to <a "
+"href=\"http://codex.wordpress.org/Upgrading_WordPress\">the Codex</a>."
+msgstr ""
+"Si vous devez mettre à jour votre version de PHP, contactez votre hébergeur "
+"pour obtenir une assistance. Si vous avez besoin d'aide pour mettre à jour "
+"WordPress, vous pouvez consulter <a href=\"http://codex.wordpress.org/"
+"Upgrading_WordPress\">la documentation</a>."
+
+#: views/requirements-error.php:27
+msgid ""
+"If you tried activating WPMovieLibrary-Trailers without activating "
+"WPMovieLibrary first, you will need to deactivate and reactivate "
+"WPMovieLibrary-Trailers for this notice to disapear. <a href=\"http://"
+"wpmovielibrary.com/wpmovielibrary-trailers/documentation/installation/"
+"#requirements\">Learn why</a>."
+msgstr ""
+"Si vous avez tenté d'activer WPMovieLibrary-Trailers sans avoir "
+"préalablement installé WPMovieLibrary, vous devez désactivater puis ré-"
+"activater WPMovieLibrary-Trailers pour faire disparaître cette alerte et "
+"utiliser le plugin. <a href=\"http://wpmovielibrary.com/wpmovielibrary-"
+"trailers/documentation/installation/#requirements\">Lire pourquoi</a>."

@@ -35,6 +35,7 @@ define( 'WPMLTR_URL',                    plugins_url( basename( __DIR__ ) ) );
 define( 'WPMLTR_PATH',                   plugin_dir_path( __FILE__ ) );
 define( 'WPMLTR_REQUIRED_PHP_VERSION',   '5.3' );
 define( 'WPMLTR_REQUIRED_WP_VERSION',    '3.6' );
+define( 'WPMLTR_REQUIRED_WPML_VERSION',  '1.2' );
 
 /**
  * Checks if the system requirements are met
@@ -43,14 +44,20 @@ define( 'WPMLTR_REQUIRED_WP_VERSION',    '3.6' );
  * 
  * @return   bool    True if system requirements are met, false if not
  */
-function wpmllb_requirements_met() {
+function wpmltr_requirements_met() {
 
 	global $wp_version;
+
+	if ( ! is_plugin_active( 'wpmovielibrary/wpmovielibrary.php' ) || ! defined( 'WPML_VERSION' ) )
+		return false;
+
+	if ( version_compare( $wp_version, WPMLTR_REQUIRED_WP_VERSION, '<' ) )
+		return false;
 
 	if ( version_compare( PHP_VERSION, WPMLTR_REQUIRED_PHP_VERSION, '<' ) )
 		return false;
 
-	if ( version_compare( $wp_version, WPMLTR_REQUIRED_WP_VERSION, '<' ) )
+	if ( version_compare( WPML_VERSION, WPMLTR_REQUIRED_WPML_VERSION, '<' ) )
 		return false;
 
 	return true;
@@ -61,10 +68,29 @@ function wpmllb_requirements_met() {
  * 
  * @since    1.0
  */
-function wpmllb_requirements_error() {
+function wpmltr_requirements_error() {
+
 	global $wp_version;
 
+	$valid = '#c81b1b';
+	$fail  = '#1bc81b';
+
+	$wp   = ( ! is_plugin_active( 'wpmovielibrary/wpmovielibrary.php' ) || version_compare( $wp_version, WPMLTR_REQUIRED_WP_VERSION, '<' ) ? $valid : $fail );
+	$php  = ( version_compare( PHP_VERSION, WPMLTR_REQUIRED_PHP_VERSION, '<' ) ? $valid : $fail );
+	$wpml = ( ! defined( 'WPML_VERSION' ) || version_compare( WPML_VERSION, WPMLTR_REQUIRED_WPML_VERSION, '<' ) ? $valid : $fail );
+
 	require_once WPMLTR_PATH . '/views/requirements-error.php';
+}
+
+/**
+ * Prints an error that the system requirements weren't met.
+ * 
+ * @since    1.0.1
+ */
+function wpmltr_l10n() {
+	$locale = apply_filters( 'plugin_locale', get_locale(), 'wpml-trailers' );
+	load_textdomain( 'wpml-trailers', trailingslashit( WP_LANG_DIR ) . basename( __DIR__ ) . '/languages/' . 'wpml-trailers' . '-' . $locale . '.mo' );
+	load_plugin_textdomain( 'wpml-trailers', FALSE, basename( __DIR__ ) . '/languages/' );
 }
 
 /*
@@ -73,7 +99,7 @@ function wpmllb_requirements_error() {
  * plugin requirements are met. Otherwise older PHP installations could crash
  * when trying to parse it.
  */
-if ( wpmllb_requirements_met() ) {
+if ( wpmltr_requirements_met() ) {
 
 	require_once( WPMLTR_PATH . 'includes/class-module.php' );
 	require_once( WPMLTR_PATH . 'class-wpml-trailers.php' );
@@ -93,6 +119,6 @@ if ( wpmllb_requirements_met() ) {
 	}
 }
 else {
-	
-	
+	add_action( 'init', 'wpmltr_l10n' );
+	add_action( 'admin_notices', 'wpmltr_requirements_error' );
 }

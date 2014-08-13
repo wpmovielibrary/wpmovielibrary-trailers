@@ -10,9 +10,6 @@
  * @copyright 2014 CaerCam.org
  */
 
-if ( ! class_exists( 'TMDb' ) )
-	TMDb::get_instance();
-
 if ( class_exists( 'TMDb' ) && ! class_exists( 'WPMLTR_Api' ) ) :
 
 	/**

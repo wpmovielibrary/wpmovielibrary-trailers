@@ -9,9 +9,6 @@
  * @copyright 2014 CaerCam.org
  */
 
-if ( ! class_exists( 'WPML_TMDb' ) )
-	WPML_TMDb::get_instance();
-
 if ( class_exists( 'WPML_TMDb' ) && ! class_exists( 'WPMLTR_TMDb' ) ) :
 
 	/**

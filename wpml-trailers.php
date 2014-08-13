@@ -37,6 +37,19 @@ define( 'WPMLTR_REQUIRED_PHP_VERSION',   '5.3' );
 define( 'WPMLTR_REQUIRED_WP_VERSION',    '3.6' );
 define( 'WPMLTR_REQUIRED_WPML_VERSION',  '1.2' );
 
+
+/**
+ * Determine whether WPML is active or not.
+ *
+ * @since    1.0
+ *
+ * @return   boolean
+ */
+function is_wpml_active() {
+
+	return defined( 'WPML_VERSION' );
+}
+
 /**
  * Checks if the system requirements are met
  * 
@@ -48,18 +61,10 @@ function wpmltr_requirements_met() {
 
 	global $wp_version;
 
-	if ( function_exists( 'is_plugin_active' ) && ! is_plugin_active( 'wpmovielibrary/wpmovielibrary.php' ) )
-		return false;
-	else if ( defined( 'WPML_VERSION' ) )
+	if ( version_compare( PHP_VERSION, WPMLTR_REQUIRED_PHP_VERSION, '<=' ) )
 		return false;
 
-	if ( version_compare( $wp_version, WPMLTR_REQUIRED_WP_VERSION, '<' ) )
-		return false;
-
-	if ( version_compare( PHP_VERSION, WPMLTR_REQUIRED_PHP_VERSION, '<' ) )
-		return false;
-
-	if ( ! defined( 'WPML_VERSION' ) || version_compare( WPML_VERSION, WPMLTR_REQUIRED_WPML_VERSION, '<' ) )
+	if ( version_compare( $wp_version, WPMLTR_REQUIRED_WP_VERSION, '<=' ) )
 		return false;
 
 	return true;
@@ -73,13 +78,6 @@ function wpmltr_requirements_met() {
 function wpmltr_requirements_error() {
 
 	global $wp_version;
-
-	$valid = '#c81b1b';
-	$fail  = '#1bc81b';
-
-	$wp   = ( ! is_plugin_active( 'wpmovielibrary/wpmovielibrary.php' ) || version_compare( $wp_version, WPMLTR_REQUIRED_WP_VERSION, '<' ) ? $valid : $fail );
-	$php  = ( version_compare( PHP_VERSION, WPMLTR_REQUIRED_PHP_VERSION, '<' ) ? $valid : $fail );
-	$wpml = ( ! defined( 'WPML_VERSION' ) || version_compare( WPML_VERSION, WPMLTR_REQUIRED_WPML_VERSION, '<' ) ? $valid : $fail );
 
 	require_once WPMLTR_PATH . '/views/requirements-error.php';
 }

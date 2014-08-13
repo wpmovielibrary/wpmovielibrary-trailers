@@ -37,9 +37,33 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 */
 		public function init() {
 
+			if ( ! $this->wpml_requirements_met() ) {
+				add_action( 'init', 'wpmltr_l10n' );
+				add_action( 'admin_notices', 'wpmltr_requirements_error' );
+				return false;
+			}
+
 			$this->register_hook_callbacks();
 
 			$this->register_shortcodes();
+		}
+
+		/**
+		 * Make sure WPMovieLibrary is active and compatible.
+		 *
+		 * @since    1.0
+		 * 
+		 * @return   boolean    Requirements met or not?
+		 */
+		private function wpml_requirements_met() {
+
+			$wpml_active  = is_wpml_active();
+			$wpml_version = ( is_wpml_active() && version_compare( WPML_VERSION, WPMLTR_REQUIRED_WPML_VERSION, '<=' ) );
+
+			if ( ! $wpml_active || ! $wpml_version )
+				return false;
+
+			return true;
 		}
 
 		/**

@@ -12,7 +12,7 @@
  *
  * @wordpress-plugin
  * Plugin Name: WPMovieLibrary-Trailers
- * Plugin URI:  http://wpmovielibrary.com
+ * Plugin URI:  http://wpmovielibrary.com/extensions/wpmovielibrary-trailers/
  * Description: Add Trailers support to WPMovieLibrary
  * Version:     1.0
  * Author:      Charlie MERLAND
@@ -20,7 +20,8 @@
  * Text Domain: wpml-trailers
  * License:     GPL-3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.txt
- * GitHub Plugin URI: https://github.com/Askelon/wpmovielibrary-trailers
+ * Domain Path: /languages
+ * GitHub Plugin URI: https://github.com/CaerCam/wpmovielibrary-trailers
  */
 
 // If this file is called directly, abort.

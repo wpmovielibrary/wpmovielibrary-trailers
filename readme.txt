@@ -1,9 +1,9 @@
 === WPMovieLibrary Trailers ===
 Contributors: askelon
-Donate link: http://wpmovielibrary.com
+Donate link: http://wpmovielibrary.com/extensions/wpmovielibrary-trailers/
 Tags: wpmovielibrary, movie trailer, trailers
 Requires at least: 3.6
-Tested up to: 4.0-beta.2
+Tested up to: 4.0-beta.4
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html

@@ -58,7 +58,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		private function wpml_requirements_met() {
 
 			$wpml_active  = is_wpml_active();
-			$wpml_version = ( is_wpml_active() && version_compare( WPML_VERSION, WPMLTR_REQUIRED_WPML_VERSION, '<=' ) );
+			$wpml_version = ( is_wpml_active() && version_compare( WPML_VERSION, WPMLTR_REQUIRED_WPML_VERSION, '>=' ) );
 
 			if ( ! $wpml_active || ! $wpml_version )
 				return false;

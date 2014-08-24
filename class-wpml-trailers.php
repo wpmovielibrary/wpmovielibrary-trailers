@@ -476,9 +476,9 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 					'atts' => array(
 						'id' => array( 'default' => null, 'values' => null, 'filter' => 'esc_attr' ),
 						'title' => array( 'default' => null, 'values' => null, 'filter' => 'esc_attr' ),
-						'height' => array( 'default' => 360, 'values' => null, 'filter' => 'intval' ),
-						'width' => array( 'default' => 640, 'values' => null, 'filter' => 'intval' ),
-						'link' => array( 'default' => false, 'values' => 'boolean', 'filter' => 'esc_attr' )
+						'height' => array( 'default' => 360, 'values' => null, 'filter' => 'esc_attr' ),
+						'width' => array( 'default' => 640, 'values' => null, 'filter' => 'esc_attr' ),
+						'label' => array( 'default' => false, 'values' => 'boolean', 'filter' => 'esc_attr' )
 					),
 					'callback' => __CLASS__ . '::movie_trailer_shortcode',
 				)
@@ -520,15 +520,10 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 				if ( ! in_array( $trailer['site'], array( 'youtube', 'allocine' ) ) )
 					return $content;
 
-				$url = call_user_func( __CLASS__ . "::get_{$trailer['site']}_trailer_url", $trailer['id'] );
+				$atts['title'] = ( $label ? __( 'Trailer', 'wpmovielibrary-trailers' ) : false );
+				$atts['url']   = call_user_func( __CLASS__ . "::get_{$trailer['site']}_trailer_url", $trailer['id'] );
 
-				if ( false != $link ) {
-					$atts['link'] = call_user_func( __CLASS__ . "::get_{$trailer['site']}_trailer_link", $trailer['id'] );
-					$atts['title'] = $trailer['title'];
-				}
-
-				$content = self::get_player( $url, $atts );
-				$content = apply_filters( 'wpml_format_movie_trailer', $content );
+				$content = self::render_template( 'shortcodes/trailer.php', $atts, $require = 'always' );
 
 				return $content;
 
@@ -542,29 +537,6 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 *                               Utils
 		 * 
 		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-		/**
-		 * Return an iframe player for the Trailers.
-		 *
-		 * @since    1.0
-		 *
-		 * @param    array    Trailers URL
-		 *
-		 * @return   array    HTML Player
-		 */
-		private static function get_player( $url, $args ) {
-
-			extract( $args );
-
-			$frame = '<iframe src="' . $url . '" width="' . $width . '" height="' . $height . '" frameborder="0" allowfullscreen></iframe>';
-
-			if ( ! $link )
-				return $frame;
-
-			$content = '<div class="wpml-movie-trailer-shortcode">' . $frame . '<p class="wpml-movie-trailer-text"><a href="' . $link . '">' . $title . '</a></p></div>';
-
-			return $content;
-		}
 
 		/**
 		 * Return trailer's video URL.

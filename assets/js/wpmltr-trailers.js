@@ -160,11 +160,15 @@ var wpml_trailers
 					success: function( response ) {
 						featured = ( '' == $( wpml_trailers._frame ).find( 'iframe' ).attr( 'src' ) );
 						$.each( response.data, function( i, item ) {
+							var data = JSON.stringify( this );
+							    data = data.replace( "'", "\\u0027" );
+							$( wpml_trailers._list ).append( '<div class="wpml-select-trailer"><a href="#" onclick="wpml_trailers_allocine.load_trailer( ' + this.id + ', ' + this.movie_id + ' ); return false;"><img src="' + this.thumbnail + '" alt="' + this.title + '" /> <span>' + this.title + '</span></a><input type="hidden" id="trailer_data_' + this.id + '" value=\'\' /></div>' );
+							$( '#trailer_data_' + this.id ).val( data );
+
 							if ( featured ) {
 								wpml_trailers_allocine.load_trailer( this.id, this.movie_id );
 								featured = false;
 							}
-							$( wpml_trailers._list ).append( '<div class="wpml-select-trailer"><a href="#" onclick="wpml_trailers_allocine.load_trailer( ' + this.id + ', ' + this.movie_id + ' ); return false;"><img src="' + this.thumbnail + '" alt="' + this.title + '" /> <span>' + this.title + '</span></a><input type="hidden" id="trailer_data_' + this.id + '" value=\'' + JSON.stringify( this ) + '\' /></div>' );
 						});
 					},
 					complete: function() {
@@ -187,12 +191,15 @@ var wpml_trailers
 
 				var url = 'http://www.allocine.fr/_video/iblogvision.aspx?cmedia=' + media_id,
 				   link = 'http://www.allocine.fr/video/player_gen_cmedia=' + media_id + '&cfilm=' + movie_id + '.html',
-				   code = '<iframe src="' + url + '" width="640" height="320px" frameborder="0" allowfullscreen></iframe>';
+				   code = '<iframe src="' + url + '" width="640" height="320px" frameborder="0" allowfullscreen></iframe>',
+				   data = $( '#trailer_data_' + media_id ).val();
 				$( wpml_trailers._frame ).find( 'iframe' ).prop( 'src', url );
 				$( wpml_trailers._frame ).find( 'iframe' ).attr( 'src', url );
 				$( wpml_trailers._frame ).find( '#wpml_trailer_url' ).val( url );
 				$( wpml_trailers._frame ).find( '#wpml_trailer_page' ).val( link );
 				$( wpml_trailers._frame ).find( '#wpml_trailer_code' ).val( code );
+				$( wpml_trailers._trailer ).val( media_id );
+				$( wpml_trailers._trailer_data ).val( data );
 				$( wpml_trailers._frame ).show();
 			};
 
@@ -232,12 +239,16 @@ var wpml_trailers
 					},
 					success: function( response ) {
 						$.each( response.data, function() {
-							featured = ( '' == $( wpml_trailers._frame ).find( 'iframe' ).attr( 'src' ) );
+							var data = JSON.stringify( this );
+							    data = data.replace( "'", "\\u0027" );
 							this.thumbnail = 'http://img.youtube.com/vi/' + this.id + '/mqdefault.jpg';
+							$( wpml_trailers._list ).append( '<div class="wpml-select-trailer"><a href="#" onclick="wpml_trailers_tmdb.load_trailer( \'' + this.id + '\' ); return false;"><img src="' + this.thumbnail + '" alt="' + this.title + '" /> <span>' + this.title + '</span></a><input type="hidden" id="trailer_data_' + this.id + '" value=\'\' /></div>' );
+							$( '#trailer_data_' + this.id ).val( data );
+
+							featured = ( '' == $( wpml_trailers._frame ).find( 'iframe' ).attr( 'src' ) );
 							if ( featured ) {
 								wpml_trailers_tmdb.load_trailer( this.id );
 							}
-							$( wpml_trailers._list ).append( '<div class="wpml-select-trailer"><a href="#" onclick="wpml_trailers_tmdb.load_trailer( \'' + this.id + '\' ); return false;"><img src="' + this.thumbnail + '" alt="' + this.title + '" /> <span>' + this.title + '</span></a><input type="hidden" id="trailer_data_' + this.id + '" value=\'' + JSON.stringify( this ) + '\' /></div>' );
 						});
 					},
 					complete: function() {

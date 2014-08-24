@@ -333,10 +333,11 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 			$trailer = get_post_meta( $post->ID, '_wpml_movie_trailer', true );
 			$trailer_data = get_post_meta( $post->ID, '_wpml_movie_trailer_data', true );
+			$movie_id = ( isset( $trailer_data['movie_id'] ) ? $trailer_data['movie_id'] : null ); 
 
 			if ( isset( $trailer_data['site'] ) && '' != $trailer_data['site'] ) {
 				$url  = call_user_func( __CLASS__ . "::get_{$trailer_data['site']}_trailer_url", $trailer );
-				$link = call_user_func( __CLASS__ . "::get_{$trailer_data['site']}_trailer_link", $trailer );
+				$link = call_user_func( __CLASS__ . "::get_{$trailer_data['site']}_trailer_link", $trailer, $movie_id );
 				$code = htmlentities( $url );
 			}
 			else {

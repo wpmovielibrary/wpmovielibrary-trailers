@@ -13,7 +13,7 @@
  */
 ?>
 
-	<div class="wpml-shortcode-div  wpml-movie-trailer-shortcode">
+	<div class="wpml-movie-trailer-shortcode">
 <?php if ( $title ) : ?>
 		<div class="wpml-movie-trailer-title"><h3><?php echo $title ?></h3></div>
 

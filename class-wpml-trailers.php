@@ -350,7 +350,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 				'style'         => ( ! $url ? '' : ' class="visible"' ),
 				'trailer'       => $trailer,
 				'trailer_data'  => $trailer_data,
-				'trailer_data_' => json_encode( $trailer_data ),
+				'trailer_data_' => str_replace( "'", "\u0027", json_encode( $trailer_data ) ),
 				'url'           => $url,
 				'link'          => $link,
 				'code'          => $code,

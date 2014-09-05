@@ -73,12 +73,8 @@ var wpml_trailers
 					success: function( response ) {
 						if ( ! response.length )
 							return false;
-						
-						$.each( response, function() {
-							if ( this.title1 == title || this.title2 == title )
-								movies.push( this );
-						} );
 
+						movies = response;
 						if ( movies.length > 1 ) {
 							wpml_trailers_allocine.select( movies );
 							return false;

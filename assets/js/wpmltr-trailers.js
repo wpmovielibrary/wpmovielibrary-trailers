@@ -189,10 +189,11 @@ var wpml_trailers
 			 */
 			wpml.trailers.allocine.load_trailer = function( media_id, movie_id ) {
 
-				var url = 'http://www.allocine.fr/_video/iblogvision.aspx?cmedia=' + media_id,
-				   link = 'http://www.allocine.fr/video/player_gen_cmedia=' + media_id + '&cfilm=' + movie_id + '.html',
-				   code = '<iframe src="' + url + '" width="640" height="320px" frameborder="0" allowfullscreen></iframe>',
-				   data = $( '#trailer_data_' + media_id ).val();
+				var    url = 'http://www.allocine.fr/_video/iblogvision.aspx?cmedia=' + media_id,
+				      link = 'http://www.allocine.fr/video/player_gen_cmedia=' + media_id + '&cfilm=' + movie_id + '.html',
+				      code = '<iframe src="' + url + '" width="640" height="320px" frameborder="0" allowfullscreen></iframe>',
+				 shortcode = '[movie_trailer id="' + $( wpml_trailers._post_id ).val() + '"]',
+				      data = $( '#trailer_data_' + media_id ).val();
 				$( wpml_trailers._frame ).find( 'iframe' ).prop( 'src', url );
 				$( wpml_trailers._frame ).find( 'iframe' ).attr( 'src', url );
 				$( wpml_trailers._frame ).find( '#wpml_trailer_url' ).val( url );
@@ -263,21 +264,22 @@ var wpml_trailers
 			 * Fill the needed form inputs and user inputs.
 			 * 
 			 * @param    int    media_id The trailer media ID
-			 * @param    int    movie_id The movie ID 
 			 * 
 			 * @since    1.0
 			 */
 			wpml.trailers.tmdb.load_trailer = function( id ) {
 
-				var url = 'https://www.youtube.com/embed/' + id,
-				   link = 'https://www.youtube.com/watch?v=' + id,
-				   code = '<iframe src="' + url + '" width="640" height="320px" frameborder="0" allowfullscreen></iframe>',
-				   data = $( '#trailer_data_' + id ).val();
+				var    url = 'https://www.youtube.com/embed/' + id,
+				      link = 'https://www.youtube.com/watch?v=' + id,
+				      code = '<iframe src="' + url + '" width="640" height="320px" frameborder="0" allowfullscreen></iframe>',
+				 shortcode = '[movie_trailer id="' + $( wpml_trailers._post_id ).val() + '"]',
+				      data = $( '#trailer_data_' + id ).val();
 				$( wpml_trailers._frame ).find( 'iframe' ).prop( 'src', url );
 				$( wpml_trailers._frame ).find( 'iframe' ).attr( 'src', url );
 				$( wpml_trailers._frame ).find( '#wpml_trailer_url' ).val( url );
 				$( wpml_trailers._frame ).find( '#wpml_trailer_page' ).val( link );
 				$( wpml_trailers._frame ).find( '#wpml_trailer_code' ).val( code );
+				$( wpml_trailers._frame ).find( '#wpml_trailer_shortcode' ).val( shortcode );
 				$( wpml_trailers._trailer ).val( id );
 				$( wpml_trailers._trailer_data ).val( data );
 				$( wpml_trailers._frame ).show();
@@ -295,4 +297,44 @@ var wpml_trailers
 			$( wpml_trailers._trailer ).val( '' );
 			$( wpml_trailers._trailer_data ).val( '' );
 			$( wpml_trailers._trailers ).val( '' );
+		};
+
+		/**
+		 * Remove current Trailer.
+		 * 
+		 * @since    1.1
+		 */
+		wpml.trailers.remove = function() {
+
+			wpml._post({
+				data: {
+					action: 'wpml_remove_trailer',
+					nonce: wpml.get_nonce( 'remove-trailer' ),
+					post_id: $( wpml_trailers._post_id ).val()
+				},
+				beforeSend: function() {
+					$( wpml_trailers._spinner ).addClass( 'visible' );
+				},
+				error: function( response ) {
+					wpml_state.clear();
+					$.each( response.responseJSON.errors, function() {
+						wpml_state.set( this, 'error' );
+					});
+				},
+				success: function( response ) {
+					wpml_trailers.empty();
+					$( wpml_trailers._frame ).find( 'iframe' ).prop( 'src', '' );
+					$( wpml_trailers._frame ).find( 'iframe' ).attr( 'src', '' );
+					$( wpml_trailers._frame ).find( '#wpml_trailer_url' ).val( '' );
+					$( wpml_trailers._frame ).find( '#wpml_trailer_page' ).val( '' );
+					$( wpml_trailers._frame ).find( '#wpml_trailer_code' ).val( '' );
+					$( wpml_trailers._frame ).find( '#wpml_trailer_shortcode' ).val( '' );
+					$( wpml_trailers._trailer ).val( '' );
+					$( wpml_trailers._trailer_data ).val( '' );
+					$( wpml_trailers._frame ).hide();
+				},
+				complete: function() {
+					$( wpml_trailers._spinner ).removeClass( 'visible' );
+				}
+			});
 		};

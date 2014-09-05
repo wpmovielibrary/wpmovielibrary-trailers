@@ -89,6 +89,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 			add_action( 'wp_ajax_wpml_search_trailer', __CLASS__ . '::search_trailer_callback' );
 			add_action( 'wp_ajax_wpml_load_allocine_page', __CLASS__ . '::load_allocine_page_callback' );
+			add_action( 'wp_ajax_wpml_remove_trailer', __CLASS__ . '::remove_trailer_callback' );
 		}
 
 		/**
@@ -286,6 +287,25 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			WPML_Utils::ajax_response( $response, array(), WPML_Utils::create_nonce( 'search-trailer' ) );
 		}
 
+		/**
+		 * AJAX Callback to remove Movie's current Trailer
+		 * 
+		 * @since    1.1
+		 */
+		public static function remove_trailer_callback() {
+
+			WPML_Utils::check_ajax_referer( 'remove-trailer' );
+
+			$post_id = ( isset( $_POST['post_id'] ) && '' != $_POST['post_id'] ? intval( $_POST['post_id'] ) : null );
+
+			if ( is_null( $post_id ) )
+				return new WP_Error( 'missing_id', __( 'Required Post ID not provided or invalid.', 'wpmovielibrary-trailers' ) );
+
+			$response = self::remove_trailer( $post_id );
+
+			WPML_Utils::ajax_response( $response, array(), WPML_Utils::create_nonce( 'remove-trailer' ) );
+		}
+
 		/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 		 *
 		 *                             Metabox
@@ -354,6 +374,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 				'url'           => $url,
 				'link'          => $link,
 				'code'          => $code,
+				'shortcode'     => '[movie_trailer id="' . $post->ID . '"]'
 			);
 
 			echo self::render_template( 'metaboxes/movie-trailers.php', $attributes );
@@ -450,6 +471,31 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 				if ( ! $trailer || ! $trailer_data )
 					$errors->add( 'trailer', __( 'An error occurred while saving the trailer.', 'wpmovielibrary-trailers' ) );
 			}
+
+			return ( ! empty( $errors->errors ) ? $errors : $post_ID );
+		}
+
+		/**
+		 * Remove a Trailer.
+		 *
+		 * @since    1.1
+		 *
+		 * @param    int        $post_ID Post ID.
+		 * 
+		 * @return   int|WP_Error    Post ID if trailer was removed successfully, WP_Error if an error occurred.
+		 */
+		private static function remove_trailer( $post_ID ) {
+
+			if ( ! $post = get_post( $post_ID ) || 'movie' != get_post_type( $post ) )
+				return new WP_Error( sprintf( __( 'Posts with #%s is invalid or is not a movie.', 'wpmovielibrary-trailers' ), $post_ID ) );
+
+			$errors = new WP_Error();
+
+			$trailer = delete_post_meta( $post_ID, '_wpml_movie_trailer' );
+			$trailer_data = delete_post_meta( $post_ID, '_wpml_movie_trailer_data' );
+
+			if ( ! $trailer || ! $trailer_data )
+				$errors->add( 'trailer', __( 'An error occurred while removing the trailer.', 'wpmovielibrary-trailers' ) );
 
 			return ( ! empty( $errors->errors ) ? $errors : $post_ID );
 		}

@@ -116,6 +116,9 @@ var wpml_trailers
 					else
 						this.thumbnail = this.thumbnail.replace( '75_100', '160_240' );
 
+					if ( undefined == this.title1 )
+						this.title1 = this.title2;
+
 					$( wpml_trailers._select ).append( '<div class="wpml-select-movie"><a id="allocine_' + this.id + '" href="#" onclick="wpml_trailers_allocine.get_trailers( ' + this.id + ' ); return false;"><img src="' + this.thumbnail + '" /><em>' + this.title1 + '</em></a></div>' );
 				} );
 			};

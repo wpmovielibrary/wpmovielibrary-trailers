@@ -86,12 +86,14 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 			// Create a new Metabox tab
 			add_filter( 'wpmoly_filter_metabox_panels', array( $this, 'add_metabox_panel' ), 10, 1 );
-			//add_filter( 'wpmoly_filter_metaboxes', __CLASS__ . '::add_meta_box' );
-			add_filter( 'wpmoly_filter_shortcodes', __CLASS__ . '::add_movie_trailer_shortcode' );
+			//add_filter( 'wpmoly_filter_shortcodes', __CLASS__ . '::add_movie_trailer_shortcode', 10, 1 );
 
 			add_action( 'wp_ajax_wpmoly_search_trailer', __CLASS__ . '::search_trailer_callback' );
 			add_action( 'wp_ajax_wpmoly_load_allocine_page', __CLASS__ . '::load_allocine_page_callback' );
 			add_action( 'wp_ajax_wpmoly_remove_trailer', __CLASS__ . '::remove_trailer_callback' );
+
+			add_filter( 'wpmoly_filter_headbox_menu_link', array( $this, 'headbox_menu_trailer_link' ), 10, 1 );
+			add_filter( 'wpmoly_filter_headbox_menu_tabs', array( $this, 'headbox_menu_trailer_tab' ), 10, 1 );
 		}
 
 		/**
@@ -310,6 +312,87 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 		/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 		 *
+		 *                             Headbox
+		 * 
+		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+		/**
+		 * Modern headbox trailer tab menu links.
+		 *
+		 * @since    2.0
+		 * 
+		 * @param    array    $links Existing links
+		 * 
+		 * @return   string    Updated Menu links
+		 */
+		public function headbox_menu_trailer_link( $links ) {
+
+			$new_links = array(
+				'trailer' => array(
+					'title' => __( 'Trailer', 'wpmovielibrary' ),
+					'icon'  => 'movie'
+				)
+			);
+
+			$links = array_merge( $links, $new_links );
+
+			return $links;
+		}
+
+		/**
+		 * Modern headbox trailer tab.
+		 *
+		 * @since    2.0
+		 * 
+		 * @param    array    $tabs Existing tabs
+		 * 
+		 * @return   string    Updated Tab list
+		 */
+		public function headbox_menu_trailer_tab( $tabs ) {
+
+			$new_tabs = array(
+				'trailer' => array(
+					'title'   => __( 'Trailer', 'wpmovielibrary' ),
+					'icon'    => 'movie',
+					'content' => self::movie_headbox_trailer_tab()
+				)
+			);
+
+			$tabs = array_merge( $tabs, $new_tabs );
+
+			return $tabs;
+		}
+
+		/**
+		 * Modern headbox trailer tab content callback.
+		 * 
+		 * @since    2.0
+		 * 
+		 * @return   string    Tab content HTML markup
+		 */
+		public static function movie_headbox_trailer_tab() {
+
+			global $post;
+
+			$trailer      = wpmoly_get_movie_meta( $post->ID, 'trailer', true );
+			$trailer_data = wpmoly_get_movie_meta( $post->ID, 'trailer_data', true );
+			$movie_id     = ( isset( $trailer_data['movie_id'] ) ? $trailer_data['movie_id'] : null ); 
+
+			$url = '';
+			if ( isset( $trailer_data['site'] ) && '' != $trailer_data['site'] )
+				$url  = call_user_func( __CLASS__ . "::get_{$trailer_data['site']}_trailer_url", $trailer );
+
+			$attributes = array(
+				'trailer' => $url
+			);
+
+			$content = self::render_template( 'movies/headbox/tabs/trailer.php', $attributes, $require = 'always' );
+
+			return $content;
+		}
+
+		/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+		 *
 		 *                             Metabox
 		 * 
 		 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -377,19 +460,6 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 			return $content;
 		}
-
-		/**
-		 * Trailers Metabox
-		 * 
-		 * @since    1.0
-		 * 
-		 * @param    object    Current Post object
-		 * @param    null      $metabox null
-		 */
-		/*public static function metabox_content( $post, $metabox ) {
-
-			
-		}*/
 
 		/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 		 *
@@ -537,7 +607,9 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 						'width' => array( 'default' => 640, 'values' => null, 'filter' => 'esc_attr' ),
 						'label' => array( 'default' => false, 'values' => 'boolean', 'filter' => 'esc_attr' )
 					),
+					'content'  => null,
 					'callback' => __CLASS__ . '::movie_trailer_shortcode',
+					'aliases'  => null
 				)
 			);
 
@@ -558,25 +630,31 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 */
 		public static function movie_trailer_shortcode( $atts, $content ) {
 
-			$atts = apply_filters( 'wpmoly_filter_shortcode_atts', 'movie_trailer', $atts );
+			$default = array(
+				'id'     => array( 'default' => null,  'values' => null,      'filter' => 'esc_attr' ),
+				'title'  => array( 'default' => null,  'values' => null,      'filter' => 'esc_attr' ),
+				'height' => array( 'default' => 360,   'values' => null,      'filter' => 'esc_attr' ),
+				'width'  => array( 'default' => 640,   'values' => null,      'filter' => 'esc_attr' ),
+				'label'  => array( 'default' => false, 'values' => 'boolean', 'filter' => 'esc_attr' )
+			);
+			$atts = WPMOLY_Shortcodes::filter_shortcode_atts( 'movie_trailer', $atts, $default );
 
-			print_r( $atts );
 			// Caching
 			$name = apply_filters( 'wpmoly_cache_name', 'movie_trailer_shortcode', $atts );
-			$content = WPMOLY_Cache::output( $name, function() use ( $atts, $content ) {
+			$content = WPMOLY_Cache::output( $name, function() use ( $atts ) {
 
 				extract( $atts );
 
 				$movie_id = WPMOLY_Shortcodes::find_movie_id( $id, $title );
 				if ( is_null( $movie_id ) )
-					return $content;
+					return null;
 
 				$trailer = self::get_movie_trailer( $movie_id );
 				if ( '' == $trailer )
-					return $content;
+					return null;
 
 				if ( ! isset( $trailer['site'] ) || ! in_array( $trailer['site'], array( 'youtube', 'allocine' ) ) )
-					return $content;
+					return null;
 
 				$atts['title'] = ( $label ? __( 'Trailer', 'wpmovielibrary-trailers' ) : false );
 				$atts['url']   = call_user_func( __CLASS__ . "::get_{$trailer['site']}_trailer_url", $trailer['id'] );

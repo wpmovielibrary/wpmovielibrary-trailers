@@ -1,7 +1,7 @@
 <div class="error">
 	<p><?php _e( 'WPMovieLibrary-Trailers error: your environment does not meet all of the system requirements listed below.', 'wpmovielibrary-trailers' ); ?></p>
 
-<?php if ( is_wpml_active() ) : ?>
+<?php if ( is_wpmoly_active() ) : ?>
 	<ul class="ul-disc">
 		<li><strong style="color:<?php echo $wp; ?>;"><?php _e( 'WPMovieLibrary is required', 'wpmovielibrary-trailers' ); ?></strong>.<br /><em><?php _e( 'WPMovieLibrary-Trailers extends the WPMovieLibrary plugin and therefore requires it to be installed and activated.', 'wpmovielibrary-trailers' ); ?></em></li>
 	</ul>
@@ -18,7 +18,7 @@
 		</li>
 		<li>
 			<strong>WPMovieLibrary <?php echo WPMLTR_REQUIRED_WPML_VERSION; ?>+</strong>
-			<em><?php if ( is_wpml_active() ) printf( __( '(You\'re running version %s)', 'wpmovielibrary-trailers' ), WPML_VERSION ); ?></em>
+			<em><?php if ( is_wpmoly_active() ) printf( __( '(You\'re running version %s)', 'wpmovielibrary-trailers' ), WPML_VERSION ); ?></em>
 		</li>
 	</ul>
 

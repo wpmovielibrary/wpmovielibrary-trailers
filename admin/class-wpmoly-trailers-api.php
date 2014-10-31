@@ -10,7 +10,7 @@
  * @copyright 2014 CaerCam.org
  */
 
-if ( class_exists( 'TMDb' ) && ! class_exists( 'WPMLTR_Api' ) ) :
+if ( class_exists( 'TMDb' ) && ! class_exists( 'WPMOLYTR_Api' ) ) :
 
 	/**
 	 * Extends Class for WPML Api Class
@@ -19,7 +19,7 @@ if ( class_exists( 'TMDb' ) && ! class_exists( 'WPMLTR_Api' ) ) :
 	 * 
 	 * @since    1.0
 	 */
-	class WPMLTR_Api extends TMDb
+	class WPMOLYTR_Api extends TMDb
 	{
 
 		/**
@@ -41,7 +41,7 @@ if ( class_exists( 'TMDb' ) && ! class_exists( 'WPMLTR_Api' ) ) :
 		 */
 		public function getTrailers( $id, $lang ) {
 
-			$params = array( 'language' => is_null( $lang ) ? WPML_Settings::tmdb__lang() : $lang );
+			$params = array( 'language' => is_null( $lang ) ? wpmoly_o( 'api-language' ) : $lang );
 			return $this->_makeCall( "movie/{$id}/trailers", $params );
 		}
 
@@ -55,7 +55,7 @@ if ( class_exists( 'TMDb' ) && ! class_exists( 'WPMLTR_Api' ) ) :
 		 */
 		public function getVideos( $id, $lang ) {
 
-			$params = array( 'language' => is_null( $lang ) ? WPML_Settings::tmdb__lang() : $lang );
+			$params = array( 'language' => is_null( $lang ) ? wpmoly_o( 'api-language' ) : $lang );
 			return $this->_makeCall( "movie/{$id}/videos", $params );
 		}
 	}

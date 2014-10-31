@@ -9,14 +9,14 @@
  * @copyright 2014 CaerCam.org
  */
 
-if ( ! class_exists( 'WPMLTR_Allocine' ) ) :
+if ( ! class_exists( 'WPMOLYTR_Allocine' ) ) :
 
 	/**
 	 * Find Allociné Trailers
 	 * 
 	 * @since    1.0
 	 */
-	class WPMLTR_Allocine {
+	class WPMOLYTR_Allocine {
 
 		/**
 		 * Default constructor

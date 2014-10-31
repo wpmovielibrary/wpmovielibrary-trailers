@@ -1,11 +1,11 @@
 <?php
 
-if ( ! class_exists( 'WPMTRL_Module' ) ) {
+if ( ! class_exists( 'WPMOLYTR_Module' ) ) {
 
 	/**
 	 * Abstract class to define/implement base methods for all module classes
 	 */
-	abstract class WPMLTR_Module {
+	abstract class WPMOLYTR_Module {
 
 		private static $instances = array();
 
@@ -48,13 +48,13 @@ if ( ! class_exists( 'WPMTRL_Module' ) ) {
 		 */
 		public static function render_template( $default_template_path = false, $variables = array(), $require = 'once' ) {
 
-			do_action( 'wpmltr_render_template_pre', $default_template_path, $variables );
+			do_action( 'wpmolytr_render_template_pre', $default_template_path, $variables );
 
 			$template_path = locate_template( 'wpmovielibrary/' . $default_template_path, true, false );
 			if ( ! $template_path )
 				$template_path = dirname( __DIR__ ) . '/views/' . $default_template_path;
 
-			$template_path = apply_filters( 'wpmltr_template_path', $template_path );
+			$template_path = apply_filters( 'wpmolytr_template_path', $template_path );
 
 			if ( is_file( $template_path ) ) {
 
@@ -66,12 +66,12 @@ if ( ! class_exists( 'WPMTRL_Module' ) ) {
 				else
 					require_once( $template_path );
 
-				$template_content = apply_filters( 'wpmltr_template_content', ob_get_clean(), $default_template_path, $template_path, $variables );
+				$template_content = apply_filters( 'wpmolytr_template_content', ob_get_clean(), $default_template_path, $template_path, $variables );
 			}
 			else
 				$template_content = '';
 
-			do_action( 'wpmltr_render_template_after', $default_template_path, $variables, $template_path, $template_content );
+			do_action( 'wpmolytr_render_template_after', $default_template_path, $variables, $template_path, $template_content );
 
 			return $template_content;
 		}

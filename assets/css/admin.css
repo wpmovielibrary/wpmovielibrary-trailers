@@ -1,15 +1,15 @@
 
-#wpml-trailers .spinner {
+#wpmoly-trailers .spinner {
 	display: none;
 	float: none;
 }
 
-#wpml-trailers .spinner.visible {
+#wpmoly-trailers .spinner.visible {
 	display: inline-block;
 }
 
-#wpml-trailers .wpml-select-movie,
-#wpml-trailers .wpml-select-trailer {
+#wpmoly-trailers .wpmoly-select-movie,
+#wpmoly-trailers .wpmoly-select-trailer {
 	display: inline-table;
 	margin: 1em 0.5em;
 	max-width: 160px;
@@ -17,9 +17,9 @@
 	vertical-align: top;
 }
 
-#wpml-trailers .wpml-select-movie img,
-#wpml-trailers .wpml-select-trailer img,
-#wpml-trailer-frame iframe {
+#wpmoly-trailers .wpmoly-select-movie img,
+#wpmoly-trailers .wpmoly-select-trailer img,
+#wpmoly-trailer-frame iframe {
 	border-radius: 0.25em;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
 	display: block;
@@ -27,11 +27,11 @@
 	max-width: 240px;
 }
 
-#wpml-trailers .wpml-select-trailer {
+#wpmoly-trailers .wpmoly-select-trailer {
 	max-width: 240px;
 }
 
-#wpml-trailer-frame {
+#wpmoly-trailer-frame {
 	display: none;
 	float: left;
 	margin: 1em 0.5em 0.5em 0.5em;
@@ -39,22 +39,22 @@
 	width: 100%;
 }
 
-#wpml-trailer-frame.visible {
+#wpmoly-trailer-frame.visible {
 	display: inline;
 }
 
-#wpml-trailer-frame iframe {
+#wpmoly-trailer-frame iframe {
 	height: auto;
 	max-width: 746px;
 	min-height: 360px;
 	width: 100%;
 }
 
-#wpml-trailer-frame #wpml-trailer-details {
+#wpmoly-trailer-frame #wpmoly-trailer-details {
 	display: none;
 }
 
-#wpml-trailer-frame input,
-#wpml-trailer-frame textarea {
+#wpmoly-trailer-frame input,
+#wpmoly-trailer-frame textarea {
 	width: 100%;
 }

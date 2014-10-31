@@ -9,7 +9,7 @@
  * @copyright 2014 CaerCam.org
  */
 
-if ( class_exists( 'WPML_TMDb' ) && ! class_exists( 'WPMLTR_TMDb' ) ) :
+if ( class_exists( 'WPMOLY_TMDb' ) && ! class_exists( 'WPMOLYTR_TMDb' ) ) :
 
 	/**
 	 * Extends Class for WPML Api Wrapper Class
@@ -19,7 +19,7 @@ if ( class_exists( 'WPML_TMDb' ) && ! class_exists( 'WPMLTR_TMDb' ) ) :
 	 * 
 	 * @since    1.0
 	 */
-	class WPMLTR_TMDb extends WPML_TMDb {
+	class WPMOLYTR_TMDb extends WPMOLY_TMDb {
 
 		/**
 		 * Default constructor
@@ -43,7 +43,7 @@ if ( class_exists( 'WPML_TMDb' ) && ! class_exists( 'WPMLTR_TMDb' ) ) :
 		 */
 		public static function get_trailers( $id, $lang = null ) {
 
-			$api = new WPMLTR_Api();
+			$api = new WPMOLYTR_Api();
 			$trailers = $api->getTrailers( $id, $lang );
 			$trailers = self::filter_data( $trailers );
 
@@ -62,7 +62,7 @@ if ( class_exists( 'WPML_TMDb' ) && ! class_exists( 'WPMLTR_TMDb' ) ) :
 		 */
 		public static function get_videos( $id, $lang = null ) {
 
-			$api = new WPMLTR_Api();
+			$api = new WPMOLYTR_Api();
 			$videos = $api->getVideos( $id, $lang );
 			$videos = self::filter_data( $videos );
 

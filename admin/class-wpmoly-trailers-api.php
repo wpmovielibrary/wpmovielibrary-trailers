@@ -29,6 +29,13 @@ if ( class_exists( 'TMDb' ) && ! class_exists( 'WPMOLYTR_Api' ) ) :
 
 			if ( ! is_admin() )
 				return false;
+
+			$this->api_key  = wpmoly_o( 'api-key' );
+			$this->scheme   = wpmoly_o( 'api-scheme' );
+			$this->internal = wpmoly_o( 'api-internal' );
+
+			if ( '' == $this->api_key )
+				$this->internal = true;
 		}
 
 		/**

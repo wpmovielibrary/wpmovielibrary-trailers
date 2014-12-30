@@ -37,12 +37,6 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 */
 		public function init() {
 
-			if ( ! $this->wpmoly_requirements_met() ) {
-				add_action( 'init', 'wpmolytr_l10n' );
-				add_action( 'admin_notices', 'wpmolytr_requirements_error' );
-				return false;
-			}
-
 			$this->register_hook_callbacks();
 
 			$this->register_shortcodes();
@@ -50,6 +44,9 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 		/**
 		 * Make sure WPMovieLibrary is active and compatible.
+		 * 
+		 * Deprecated since 2.0: causing bugs even though WPMOLY is
+		 * installed and active.
 		 *
 		 * @since    1.0
 		 * 
@@ -57,10 +54,10 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		 */
 		private function wpmoly_requirements_met() {
 
-			$wpmoly_active  = is_wpmoly_active();
+			/*$wpmoly_active  = is_wpmoly_active();
 			$wpmoly_version = ( is_wpmoly_active() && version_compare( WPMOLY_VERSION, WPMOLYTR_REQUIRED_WPMOLY_VERSION, '>=' ) );
 
-			/*if ( ! $wpmoly_active || ! $wpmoly_version )
+			if ( ! $wpmoly_active || ! $wpmoly_version )
 				return false;*/
 
 			return true;
@@ -86,6 +83,10 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 			// Create a new Metabox tab
 			add_filter( 'wpmoly_filter_metabox_panels', array( $this, 'add_metabox_panel' ), 10, 1 );
+
+			// Add new detail to the settings panel
+			add_filter( 'redux/options/wpmoly_settings/field/wpmoly-headbox-tabs/register', array( $this, 'headbox_tabs_settings' ), 10, 1 );
+
 			//add_filter( 'wpmoly_filter_shortcodes', __CLASS__ . '::add_movie_trailer_shortcode', 10, 1 );
 
 			add_action( 'wp_ajax_wpmoly_search_trailer', __CLASS__ . '::search_trailer_callback' );
@@ -389,6 +390,22 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			$content = self::render_template( 'movies/headbox/tabs/trailer.php', $attributes, $require = 'always' );
 
 			return $content;
+		}
+
+		/**
+		 * Add Trailers to the Settings panel
+		 *
+		 * @since    1.1
+		 * 
+		 * @param    array    Exisiting Headbox Tabs settings
+		 * 
+		 * @return   array    Updated Headbox Tabs settings
+		 */
+		public function headbox_tabs_settings( $field ) {
+
+			$field['options'] = array_merge( $field['options'], array( 'trailers' => __( 'Trailers', 'wpmovielibrary' ) ) );
+
+			return $field;
 		}
 
 		/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

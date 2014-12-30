@@ -14,7 +14,7 @@
  * Plugin Name: WPMovieLibrary-Trailers
  * Plugin URI:  http://wpmovielibrary.com/extensions/wpmovielibrary-trailers/
  * Description: Add Trailers support to WPMovieLibrary
- * Version:     1.0
+ * Version:     2.0
  * Author:      Charlie MERLAND
  * Author URI:  http://www.caercam.org/
  * Text Domain: wpml-trailers
@@ -37,21 +37,6 @@ define( 'WPMOLYTR_PATH',                    plugin_dir_path( __FILE__ ) );
 define( 'WPMOLYTR_REQUIRED_PHP_VERSION',    '5.4' );
 define( 'WPMOLYTR_REQUIRED_WP_VERSION',     '3.8' );
 define( 'WPMOLYTR_REQUIRED_WPMOLY_VERSION', '2.0' );
-
-
-/**
- * Determine whether WPML is active or not.
- *
- * @since    1.0
- *
- * @return   boolean
- */
-if ( ! function_exists( 'is_wpmoly_active' ) ) :
-	function is_wpmoly_active() {
-
-		return defined( 'WPMOLY_VERSION' );
-	}
-endif;
 
 /**
  * Checks if the system requirements are met

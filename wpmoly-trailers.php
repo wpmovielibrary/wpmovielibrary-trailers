@@ -39,6 +39,20 @@ define( 'WPMOLYTR_REQUIRED_WP_VERSION',     '3.8' );
 define( 'WPMOLYTR_REQUIRED_WPMOLY_VERSION', '2.0' );
 
 /**
+ * Determine whether WPMOLY is active or not.
+ *
+ * @since    1.0
+ *
+ * @return   boolean
+ */
+if ( ! function_exists( 'is_wpmoly_active' ) ) :
+	function is_wpmoly_active() {
+
+		return defined( 'WPMOLYVERSION' );
+	}
+endif;
+
+/**
  * Checks if the system requirements are met
  * 
  * @since    1.0

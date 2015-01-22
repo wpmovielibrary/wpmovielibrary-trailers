@@ -95,6 +95,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 
 			add_filter( 'wpmoly_filter_headbox_menu_link', array( $this, 'headbox_menu_trailer_link' ), 10, 1 );
 			add_filter( 'wpmoly_filter_headbox_menu_tabs', array( $this, 'headbox_menu_trailer_tab' ), 10, 1 );
+			add_filter( 'wpmoly_filter_allocine_headbox_tabs', array( $this, 'headbox_allocine_trailer_tab' ), 10, 1 );
 		}
 
 		/**
@@ -388,6 +389,59 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			);
 
 			$content = self::render_template( 'movies/headbox/tabs/trailer.php', $attributes, $require = 'always' );
+
+			return $content;
+		}
+
+		/**
+		 * Modern headbox trailer tab content callback.
+		 * 
+		 * @since    2.1
+		 * 
+		 * @param    array    $tabs Existing tabs
+		 * 
+		 * @return   string    Tab content HTML markup
+		 */
+		public static function headbox_allocine_trailer_tab( $tabs ) {
+
+			$new_tab = array(
+				'trailers' => array(
+					'title'   => __( 'Trailers', 'wpmovielibrary' ),
+					'icon'    => 'movie',
+					'content' => self::movie_headbox_allocine_trailer_tab()
+				)
+			);
+
+			$tabs = array_merge( $tabs, $new_tab );
+
+			return $tabs;
+		}
+
+		/**
+		 * Allociné headbox trailer tab content callback.
+		 * 
+		 * @since    2.1
+		 * 
+		 * @return   string    Tab content HTML markup
+		 */
+		public static function movie_headbox_allocine_trailer_tab() {
+
+			global $post;
+
+			$trailer      = wpmoly_get_movie_meta( $post->ID, 'trailer', true );
+			$trailer_data = wpmoly_get_movie_meta( $post->ID, 'trailer_data', true );
+			$movie_id     = ( isset( $trailer_data['movie_id'] ) ? $trailer_data['movie_id'] : null ); 
+
+			$url = '';
+			if ( isset( $trailer_data['site'] ) && '' != $trailer_data['site'] )
+				$url  = call_user_func( __CLASS__ . "::get_{$trailer_data['site']}_trailer_url", $trailer );
+
+			$attributes = array(
+				'id'      => $post->ID,
+				'trailer' => $url
+			);
+
+			$content = self::render_template( 'movies/headbox-allocine/tabs/trailer.php', $attributes, $require = 'always' );
 
 			return $content;
 		}

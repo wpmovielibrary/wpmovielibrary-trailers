@@ -330,7 +330,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		public function headbox_menu_trailer_link( $links ) {
 
 			$new_links = array(
-				'trailer' => array(
+				'trailers' => array(
 					'title' => __( 'Trailer', 'wpmovielibrary' ),
 					'icon'  => 'movie'
 				)
@@ -353,7 +353,7 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 		public function headbox_menu_trailer_tab( $tabs ) {
 
 			$new_tabs = array(
-				'trailer' => array(
+				'trailers' => array(
 					'title'   => __( 'Trailer', 'wpmovielibrary' ),
 					'icon'    => 'movie',
 					'content' => self::movie_headbox_trailer_tab()

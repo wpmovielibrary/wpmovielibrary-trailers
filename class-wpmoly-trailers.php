@@ -93,8 +93,8 @@ if ( ! class_exists( 'WPMovieLibrary_Trailers' ) ) :
 			add_action( 'wp_ajax_wpmoly_load_allocine_page', __CLASS__ . '::load_allocine_page_callback' );
 			add_action( 'wp_ajax_wpmoly_remove_trailer', __CLASS__ . '::remove_trailer_callback' );
 
-			add_filter( 'wpmoly_filter_headbox_menu_link', array( $this, 'headbox_menu_trailer_link' ), 10, 1 );
-			add_filter( 'wpmoly_filter_headbox_menu_tabs', array( $this, 'headbox_menu_trailer_tab' ), 10, 1 );
+			add_filter( 'wpmoly_pre_filter_headbox_menu_link', array( $this, 'headbox_menu_trailer_link' ), 10, 1 );
+			add_filter( 'wpmoly_pre_filter_headbox_menu_tabs', array( $this, 'headbox_menu_trailer_tab' ), 10, 1 );
 			add_filter( 'wpmoly_filter_allocine_headbox_tabs', array( $this, 'headbox_allocine_trailer_tab' ), 10, 1 );
 		}
 

@@ -12,7 +12,7 @@
 ?>
 
 					<div id="movie-headbox-<?php echo $id ?>-trailers" class="wpmoly headbox allocine movie section trailers">
-						<h3 class="wpmoly headbox allocine movie meta sub-title"><?php _e( 'Trailer', 'wpmovielibrary' ); ?></h3>
+						<h3 class="wpmoly headbox allocine movie meta sub-title"><?php _e( 'Trailer', 'wpmovielibrary-trailers' ); ?></h3>
 <?php if ( '' != $trailer ) : ?>
 						<iframe src="<?php echo $trailer ?>" frameborder="0"></iframe>
 <?php else : ?>
